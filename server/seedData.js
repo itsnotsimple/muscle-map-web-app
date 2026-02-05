@@ -1,5 +1,3 @@
-// server/seedData.js
-
 const data = [
     // --- ГЛАВНИ ГРУПИ ---
     {

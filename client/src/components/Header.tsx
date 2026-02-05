@@ -1,80 +1,92 @@
-import { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import { User, LogOut, Calendar, Mail, ShieldCheck } from "lucide-react";
+import { Home, Bookmark, List, Info, User, LogOut } from "lucide-react"; // Иконите
 
-const Profile = () => {
+const Header = () => {
   const { user, logout } = useAuth();
-  const [memberSince, setMemberSince] = useState("Loading...");
+  const location = useLocation();
 
-  // В реална ситуация тук правим fetch към /api/me за да вземем датата
-  // Засега ще сложим статично "Today" или ще го направим по-късно с backend промяна
-  
+  // Помощна функция за стилизиране на активния линк
+  const getLinkClass = (path: string) => {
+    const isActive = location.pathname === path;
+    return `flex items-center gap-2 px-3 py-2 rounded-lg transition-colors font-medium ${
+      isActive ? "text-blue-600 bg-blue-50" : "text-slate-600 hover:text-blue-600 hover:bg-slate-50"
+    }`;
+  };
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8FAFC] font-sans">
-      <Header />
-      
-      <main className="flex-1 container mx-auto py-12 px-4 flex flex-col items-center">
+    <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         
-        <div className="bg-white w-full max-w-2xl rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+        {/* ЛОГО И ИМЕ (В ЛЯВО) */}
+        <Link to="/" className="flex items-center gap-3 group">
+          {/* ТУК Е ТВОЕТО ЛОГО */}
+          <img 
+            src="/public/images/logo.png" 
+            alt="Muscle Map Logo" 
+            className="h-10 w-10 object-contain drop-shadow-sm group-hover:scale-105 transition-transform" 
+          />
+          <span className="text-xl font-bold text-slate-800 tracking-tight group-hover:text-blue-600 transition-colors">
+            Muscle Map
+          </span>
+        </Link>
+
+        {/* НАВИГАЦИЯ (В ДЯСНО) */}
+        <nav className="hidden md:flex items-center gap-2">
           
-          {/* Header на профила */}
-          <div className="bg-slate-800 p-8 text-center relative">
-            <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-4 text-slate-800 text-4xl font-bold border-4 border-blue-500">
-              {user?.email?.charAt(0).toUpperCase()}
-            </div>
-            <h1 className="text-2xl font-bold text-white">{user?.email}</h1>
-            <span className="inline-block mt-2 px-3 py-1 bg-blue-500/20 text-blue-300 text-xs font-bold rounded-full border border-blue-500/50">
-              PRO MEMBER
-            </span>
-          </div>
+          <Link to="/" className={getLinkClass("/")}>
+            <Home size={18} />
+            <span>Home</span>
+          </Link>
 
-          {/* Детайли */}
-          <div className="p-8">
-            <h2 className="text-lg font-bold text-slate-800 mb-6 border-b border-slate-100 pb-2">Account Details</h2>
-            
-            <div className="space-y-6">
+          <Link to="/bmi" className={getLinkClass("/bmi")}>
+             <Info size={18} />
+             <span>BMI</span>
+          </Link>
+
+          {/* BOOKMARKS - Винаги се вижда, дори да не си логнат */}
+          <Link to="/bookmarks" className={getLinkClass("/bookmarks")}>
+            <Bookmark size={18} />
+            <span>Bookmark</span>
+          </Link>
+
+          <div className="h-6 w-px bg-slate-200 mx-2"></div>
+
+          {user ? (
+            // АКО Е ЛОГНАТ
+            <div className="flex items-center gap-3">
+              <Link to="/profile" className="flex items-center gap-2 pl-2 pr-4 py-1.5 rounded-full border border-slate-200 hover:bg-slate-50 transition-all">
+                <div className="bg-blue-100 p-1.5 rounded-full text-blue-600">
+                    <User size={16} />
+                </div>
+                <span className="text-sm font-bold text-slate-700 max-w-[100px] truncate">
+                  {user.email?.split('@')[0]}
+                </span>
+              </Link>
               
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400">
-                  <Mail size={20} />
-                </div>
-                <div>
-                  <p className="text-sm text-slate-400 font-bold uppercase">Email Address</p>
-                  <p className="text-slate-700 font-medium">{user?.email}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400">
-                  <ShieldCheck size={20} />
-                </div>
-                <div>
-                  <p className="text-sm text-slate-400 font-bold uppercase">Account Status</p>
-                  <p className="text-green-600 font-bold flex items-center gap-1">
-                    Active & Verified
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* LOGOUT BUTTON */}
-            <div className="mt-10 pt-6 border-t border-slate-100">
               <button 
                 onClick={logout}
-                className="w-full flex items-center justify-center gap-2 text-red-500 hover:bg-red-50 py-3 rounded-xl transition-all font-bold"
+                title="Log out"
+                className="text-slate-400 hover:text-red-500 transition-colors p-2"
               >
-                <LogOut size={20} /> Sign Out
+                <LogOut size={20} />
               </button>
             </div>
-          </div>
-
-        </div>
-      </main>
-      <Footer />
-    </div>
+          ) : (
+            // АКО Е ГОСТ
+            <div className="flex items-center gap-3">
+              <Link to="/login" className="text-slate-600 font-bold hover:text-blue-600">
+                Log In
+              </Link>
+              <Link to="/register" className="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-700 shadow-md transition-all">
+                Sign Up
+              </Link>
+            </div>
+          )}
+        </nav>
+      </div>
+    </header>
   );
 };
 
-export default Profile;
+export default Header;

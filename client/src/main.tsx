@@ -1,10 +1,17 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
-import './index.css' // <--- ТОВА Е КЛЮЧЪТ! ТРЯБВА ДА Е ТУК!
+import './index.css' // Връщаме стиловете
+import { AuthProvider } from './context/AuthContext.jsx' // Връщаме Auth
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-)
+const rootElement = document.getElementById('root');
+
+if (rootElement) {
+    ReactDOM.createRoot(rootElement).render(
+      <React.StrictMode>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </React.StrictMode>,
+    )
+}

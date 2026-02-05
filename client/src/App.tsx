@@ -1,40 +1,44 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+// Импортираме всички страници
 import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-// Импортираме новите страници
-import BmiPage from "./pages/BmiPage";
-import Bookmarks from "./pages/Bookmarks";
-import MuscleDetail from "./pages/MuscleDetail";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Profile from "./pages/Profile";
+import Bookmarks from "./pages/Bookmarks";
+import MuscleDetail from "./pages/MuscleDetail";
+import NotFound from "./pages/NotFound";
+import Profile from "./pages/Profile"; 
+import BmiPage from "./pages/BmiPage";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-     <BrowserRouter>
-      <Routes>
+const App = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <Routes>
+          {/* Главна страница */}
           <Route path="/" element={<Index />} />
-        
-          {/* АУТЕНТИКАЦИЯ */}
+          
+          {/* Вход и Регистрация */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-
-          {/* ДРУГИ СТРАНИЦИ */}
+          
+          {/* Защитени страници */}
+          <Route path="/bookmarks" element={<Bookmarks />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/bmi" element={<BmiPage />} />
-          <Route path="/bookmarks" element={<Bookmarks />} />
+          
+          {/* Детайли за мускул */}
           <Route path="/muscle/:muscleId" element={<MuscleDetail />} />
-        
+          
+          {/* Страница за грешка (404) */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
-    </AuthProvider>
-  </QueryClientProvider>
-);
+    </QueryClientProvider>
+  );
+};
 
 export default App;

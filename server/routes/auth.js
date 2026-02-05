@@ -2,12 +2,11 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-// Внимавай с точките тук: връщаме се една папка назад (..) за да влезем в models
 const User = require('../models/User'); 
 
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey123";
 
-// --- MIDDLEWARE (Местим го тук, защото се ползва за bookmarks) ---
+// --- MIDDLEWARE ---
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -24,7 +23,6 @@ const authenticateToken = (req, res, next) => {
 // --- ROUTES ---
 
 // 1. РЕГИСТРАЦИЯ
-// Забележи: Тук пишем само '/register', защото в server.js ще сложим '/api' отпред
 router.post('/register', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -54,28 +52,51 @@ router.post('/login', async (req, res) => {
     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
-    res.json({ token, user: { email: user.email, savedExercises: user.savedExercises } });
+
+    res.json({ 
+        token, 
+        user: { 
+            email: user.email, 
+            savedExercises: user.savedExercises,
+            createdAt: user.createdAt
+        } 
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// 3. BOOKMARK (Защитен път)
+// 3. ДОБАВЯНЕ НА BOOKMARK (POST) - ПОПРАВЕНО
 router.post('/user/bookmark', authenticateToken, async (req, res) => {
   try {
     const { exercise } = req.body;
     const userId = req.user.id;
     const user = await User.findById(userId);
     
-    const existsIndex = user.savedExercises.findIndex(ex => ex.name === exercise.name);
-    if (existsIndex > -1) {
-      user.savedExercises.splice(existsIndex, 1);
-    } else {
-      user.savedExercises.push(exercise);
+    // Проверка: Има ли го вече по име?
+    const exists = user.savedExercises.find(ex => ex.name === exercise.name);
+    
+    if (exists) {
+      // Ако вече го има, връщаме съобщение (или може да го махнем, ако искаш toggle)
+      return res.status(400).json({ message: "Already saved" });
     }
+
+    // ВАЖНО: Създаваме нов обект, за да НЕ взимаме старото _id от exercise
+    // Това предотвратява грешки с дублиращи се ID-та в Mongo
+    const newBookmark = {
+        name: exercise.name,
+        muscleGroup: exercise.muscleGroup,
+        gif: exercise.gif || "", // Ако няма картинка, слагаме празен стринг
+        difficulty: exercise.difficulty || "Beginner"
+    };
+
+    user.savedExercises.push(newBookmark);
     await user.save();
+    
+    // Връщаме целия нов списък
     res.json(user.savedExercises);
   } catch (err) {
+    console.error("Error adding bookmark:", err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -87,6 +108,21 @@ router.get('/user/bookmarks', authenticateToken, async (req, res) => {
     res.json(user.savedExercises);
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+// 5. ИЗТРИВАНЕ НА BOOKMARK (DELETE)
+router.delete('/user/bookmarks/:id', authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    // Махаме елемента
+    user.savedExercises.pull({ _id: req.params.id });
+    await user.save();
+
+    // ВРЪЩАМЕ ДИРЕКТНО МАСИВА
+    res.json(user.savedExercises); 
+  } catch (err) {
+    res.status(500).json({ message: "Error" });
   }
 });
 

@@ -2,22 +2,25 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { UserPlus, Mail, Lock, ArrowRight } from "lucide-react";
 
 const Register = () => {
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setIsSubmitting(true);
 
     try {
       const response = await fetch("http://localhost:5000/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
@@ -26,77 +29,45 @@ const Register = () => {
         throw new Error(data.message || "Registration failed");
       }
 
-      // Ако е успешно -> пращаме го да се логне
+      // Успешна регистрация -> пращаме към логин
       navigate("/login");
-    } catch (err) {
+      
+    } catch (err: any) {
       setError(err.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8FAFC] font-sans">
+    <div className="flex flex-col min-h-screen bg-slate-50 font-sans">
       <Header />
-      <main className="flex-1 flex items-center justify-center p-4">
-        <div className="bg-white p-8 rounded-3xl shadow-xl border border-slate-100 w-full max-w-md">
+      <main className="flex-grow flex items-center justify-center px-4 py-12">
+        <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md border border-slate-100">
+          <h2 className="text-3xl font-extrabold text-slate-800 text-center mb-2">Create Account</h2>
+          <p className="text-slate-500 text-center mb-8">Join the community today</p>
           
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-600">
-              <UserPlus size={32} />
-            </div>
-            <h1 className="text-2xl font-extrabold text-slate-800">Create Account</h1>
-            <p className="text-slate-500 mt-2">Join Muscle Map to save your workouts.</p>
-          </div>
+          {error && <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-6 text-sm font-bold text-center border border-red-100">{error}</div>}
 
-          {error && (
-            <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-6 text-center border border-red-100">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">Email</label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 text-slate-400" size={20} />
-                <input 
-                  type="email" 
-                  required
-                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                  placeholder="hello@example.com"
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
-                />
-              </div>
+              <label className="block text-sm font-bold text-slate-700 mb-1">Email</label>
+              <input type="email" required className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none" 
+                placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
-
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">Password</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 text-slate-400" size={20} />
-                <input 
-                  type="password" 
-                  required
-                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                  placeholder="••••••••"
-                  onChange={(e) => setFormData({...formData, password: e.target.value})}
-                />
-              </div>
+              <label className="block text-sm font-bold text-slate-700 mb-1">Password</label>
+              <input type="password" required className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none" 
+                placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
             </div>
-
-            <button 
-              type="submit" 
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-blue-200 flex items-center justify-center gap-2 mt-4"
-            >
-              Sign Up <ArrowRight size={20} />
+            <button type="submit" disabled={isSubmitting} className={`w-full py-3 rounded-xl font-bold text-white shadow-md ${isSubmitting ? "bg-slate-400" : "bg-blue-600 hover:bg-blue-700"}`}>
+              {isSubmitting ? "Creating..." : "Sign Up"}
             </button>
           </form>
 
-          <p className="text-center text-slate-500 mt-6 text-sm">
-            Already have an account?{" "}
-            <Link to="/login" className="text-blue-600 font-bold hover:underline">
-              Log In
-            </Link>
+          <p className="mt-8 text-center text-slate-600">
+            Already have an account? <Link to="/login" className="text-blue-600 font-bold hover:underline">Log In</Link>
           </p>
-
         </div>
       </main>
       <Footer />

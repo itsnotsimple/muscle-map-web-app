@@ -1,15 +1,20 @@
-import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { User, LogOut, Calendar, Mail, ShieldCheck } from "lucide-react";
+import { LogOut, Calendar, Mail, ShieldCheck } from "lucide-react";
 
 const Profile = () => {
   const { user, logout } = useAuth();
-  const [memberSince, setMemberSince] = useState("Loading...");
 
-  // В реална ситуация тук правим fetch към /api/me за да вземем датата
-  // Засега ще сложим статично "Today" или ще го направим по-късно с backend промяна
+  // Функция за красива дата (напр. 15 March 2024)
+  const formatDate = (dateString) => {
+    if (!dateString) return "Unknown";
+    return new Date(dateString).toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  };
   
   return (
     <div className="min-h-screen flex flex-col bg-[#F8FAFC] font-sans">
@@ -25,9 +30,8 @@ const Profile = () => {
               {user?.email?.charAt(0).toUpperCase()}
             </div>
             <h1 className="text-2xl font-bold text-white">{user?.email}</h1>
-            <span className="inline-block mt-2 px-3 py-1 bg-blue-500/20 text-blue-300 text-xs font-bold rounded-full border border-blue-500/50">
-              PRO MEMBER
-            </span>
+            
+            {/* ТУК БЕШЕ PRO MEMBER - МАХНАХМЕ ГО */}
           </div>
 
           {/* Детайли */}
@@ -36,6 +40,7 @@ const Profile = () => {
             
             <div className="space-y-6">
               
+              {/* Email Row */}
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400">
                   <Mail size={20} />
@@ -46,6 +51,7 @@ const Profile = () => {
                 </div>
               </div>
 
+              {/* Status Row */}
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400">
                   <ShieldCheck size={20} />
@@ -57,6 +63,21 @@ const Profile = () => {
                   </p>
                 </div>
               </div>
+
+              {/* НОВО: Member Since Row */}
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400">
+                  <Calendar size={20} />
+                </div>
+                <div>
+                  <p className="text-sm text-slate-400 font-bold uppercase">Member Since</p>
+                  <p className="text-slate-700 font-medium">
+                    {/* Тук ползваме createdAt от AuthContext */}
+                    {user?.createdAt ? formatDate(user.createdAt) : "Just joined"}
+                  </p>
+                </div>
+              </div>
+
             </div>
 
             {/* LOGOUT BUTTON */}

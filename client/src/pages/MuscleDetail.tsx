@@ -22,13 +22,13 @@ const MuscleDetail = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const muscleRes = await fetch(`https://muscle-map-main.onrender.com/api/muscles/${muscleId}`);
+        const muscleRes = await fetch(`https://electronic-nadiya-musclemap-a30e9055.koyeb.app/api/muscles/${muscleId}`);
         if (!muscleRes.ok) throw new Error("Muscle not found");
         const muscleJson = await muscleRes.json();
         setMuscleData(muscleJson);
 
         if (user) {
-          const bookmarksRes = await fetch("https://muscle-map-main.onrender.com/api/user/bookmarks", {
+          const bookmarksRes = await fetch("https://electronic-nadiya-musclemap-a30e9055.koyeb.app/api/user/bookmarks", {
             headers: { "Authorization": `Bearer ${user.token}` }
           });
           if (bookmarksRes.ok) {
@@ -63,7 +63,7 @@ const MuscleDetail = () => {
     setSavedExercises(newSavedList);
 
     try {
-      const response = await fetch("https://muscle-map-main.onrender.com/api/user/bookmark", {
+      const response = await fetch("https://electronic-nadiya-musclemap-a30e9055.koyeb.app/api/user/bookmark", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

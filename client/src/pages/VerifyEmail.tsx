@@ -18,7 +18,7 @@ const VerifyEmail = () => {
       hasVerified.current = true;
       
       try {
-        const res = await fetch(`https://muscle-map-main.onrender.com/api/verify/${token}`);
+        const res = await fetch(`https://electronic-nadiya-musclemap-a30e9055.koyeb.app/api/verify/${token}`);
         const data = await res.json();
         if (res.ok) {
           setStatus('success');

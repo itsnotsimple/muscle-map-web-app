@@ -13,7 +13,7 @@ export function ThemeToggle() {
     if (user && user.token) {
       updateUser({ theme: newTheme })
       try {
-        await fetch("https://muscle-map-main.onrender.com/api/user/preferences", {
+        await fetch("https://electronic-nadiya-musclemap-a30e9055.koyeb.app/api/user/preferences", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",

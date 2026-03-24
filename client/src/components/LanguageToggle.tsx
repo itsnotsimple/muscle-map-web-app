@@ -12,7 +12,7 @@ export function LanguageToggle() {
     if (user && user.token) {
       updateUser({ language: nextLang })
       try {
-        await fetch("https://muscle-map-main.onrender.com/api/user/preferences", {
+        await fetch("https://electronic-nadiya-musclemap-a30e9055.koyeb.app/api/user/preferences", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",

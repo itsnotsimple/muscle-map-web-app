@@ -73,7 +73,7 @@ const DietPlan = () => {
         const fetchDiets = async () => {
             setIsLoading(true);
             try {
-                const res = await fetch('https://muscle-map-main.onrender.com/api/diets');
+                const res = await fetch('https://electronic-nadiya-musclemap-a30e9055.koyeb.app/api/diets');
                 if (res.ok) {
                     const data = await res.json();
                     setDiets(data);
@@ -120,7 +120,7 @@ const DietPlan = () => {
         setIsSaving(true);
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('https://muscle-map-main.onrender.com/api/user/profile', {
+            const res = await fetch('https://electronic-nadiya-musclemap-a30e9055.koyeb.app/api/user/profile', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

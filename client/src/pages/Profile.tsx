@@ -18,7 +18,7 @@ const Profile = () => {
     setIsDeleting(true);
     setDeleteError("");
     try {
-        const res = await fetch(`https://muscle-map-main.onrender.com/api/user/profile`, {
+        const res = await fetch(`https://electronic-nadiya-musclemap-a30e9055.koyeb.app/api/user/profile`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',

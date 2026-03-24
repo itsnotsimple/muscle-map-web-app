@@ -112,7 +112,7 @@ const Bookmarks = () => {
         }
 
         try {
-            const response = await fetch("https://muscle-map-main.onrender.com/api/user/bookmarks", {
+            const response = await fetch("https://electronic-nadiya-musclemap-a30e9055.koyeb.app/api/user/bookmarks", {
                 method: "GET",
                 headers: {
                     "Authorization": `Bearer ${user.token}`,
@@ -144,7 +144,7 @@ const Bookmarks = () => {
   // 2. ТРИЕНЕ
   const removeBookmark = async (id: string) => {
      try {
-        const response = await fetch(`https://muscle-map-main.onrender.com/api/user/bookmarks/${id}`, {
+        const response = await fetch(`https://electronic-nadiya-musclemap-a30e9055.koyeb.app/api/user/bookmarks/${id}`, {
             method: "DELETE",
             headers: {
                 "Authorization": `Bearer ${user?.token}`,

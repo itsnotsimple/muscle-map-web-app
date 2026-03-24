@@ -29,7 +29,7 @@ const Login = () => {
         try {
             setError("");
             setIsSubmitting(true);
-            const response = await fetch("https://muscle-map-main.onrender.com/api/google", {
+            const response = await fetch("https://electronic-nadiya-musclemap-a30e9055.koyeb.app/api/google", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ access_token: tokenResponse.access_token }),
@@ -55,7 +55,7 @@ const Login = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("https://muscle-map-main.onrender.com/api/login", {
+      const response = await fetch("https://electronic-nadiya-musclemap-a30e9055.koyeb.app/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

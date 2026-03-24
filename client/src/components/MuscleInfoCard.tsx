@@ -18,7 +18,7 @@ const MuscleInfoCard = ({ muscleKey, onClose }: MuscleInfoCardProps) => {
     setLoading(true);
     console.log(`📡 Fetching real DB data for: ${muscleKey}`);
 
-    fetch(`https://muscle-map-main.onrender.com/api/muscles/${muscleKey}`)
+    fetch(`https://electronic-nadiya-musclemap-a30e9055.koyeb.app/api/muscles/${muscleKey}`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch");
         return res.json();

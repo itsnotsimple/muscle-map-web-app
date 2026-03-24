@@ -29,7 +29,7 @@ const Login = () => {
         try {
             setError("");
             setIsSubmitting(true);
-            const response = await fetch("http://localhost:5000/api/google", {
+            const response = await fetch("https://muscle-map-main.onrender.com/api/google", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ access_token: tokenResponse.access_token }),
@@ -38,7 +38,7 @@ const Login = () => {
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || `Server Error`);
             
-            login(data.token, data.user);
+            login(data.token, data.user, rememberMe);
             navigate("/");
         } catch (err: any) {
             setError(err.message || "Google Authentication failed");
@@ -55,7 +55,7 @@ const Login = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/login", {
+      const response = await fetch("https://muscle-map-main.onrender.com/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -73,7 +73,7 @@ const Login = () => {
         throw new Error(data.message || `Server Error`);
       }
 
-      login(data.token, data.user);
+      login(data.token, data.user, rememberMe);
       navigate("/");
       
     } catch (err: any) {

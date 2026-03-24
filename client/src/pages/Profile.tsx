@@ -18,7 +18,7 @@ const Profile = () => {
     setIsDeleting(true);
     setDeleteError("");
     try {
-        const res = await fetch(`http://localhost:5000/api/user/profile`, {
+        const res = await fetch(`https://muscle-map-main.onrender.com/api/user/profile`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',

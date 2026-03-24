@@ -1,6 +1,14 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+const dns = require('dns');
 const Diet = require('./models/Diet');
+
+// Форсираме Node.js да използва Google DNS (8.8.8.8) локално
+try {
+    dns.setServers(['8.8.8.8', '8.8.4.4']);
+} catch (e) {
+    console.log("DNS Override warning:", e);
+}
 
 dotenv.config();
 
@@ -53,7 +61,9 @@ const dietsToSeed = [
 
 const seedDiets = async () => {
     try {
-        await mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/musclewiki');
+        await mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/musclewiki', {
+            family: 4
+        });
         console.log("✅ MongoDB Connected for Seeding Diets...");
 
         // Изтриване на стари диети

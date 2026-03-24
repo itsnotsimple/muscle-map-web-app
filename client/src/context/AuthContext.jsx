@@ -5,8 +5,8 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     try {
-      const token = localStorage.getItem("token");
-      const savedUser = localStorage.getItem("user");
+      let token = sessionStorage.getItem("token") || localStorage.getItem("token");
+      let savedUser = sessionStorage.getItem("user") || localStorage.getItem("user");
       
       if (token && savedUser) {
         // ВЗИМАМЕ ПОТРЕБИТЕЛЯ И МУ "ЗАЛЕПЯМЕ" ТОКЕНА, ЗА ДА ГО ИМА
@@ -22,14 +22,21 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
 
   // --- ПОПРАВЕНАТА LOGIN ФУНКЦИЯ ---
-  const login = (token, userData) => {
-    localStorage.setItem("token", token);
+  const login = (token, userData, rememberMe = false) => {
+    // Clear both stores to prevent conflicting orphaned states
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
+
+    const storage = rememberMe ? localStorage : sessionStorage;
+    storage.setItem("token", token);
     
     // ВАЖНО: Сливане на данните!
     // Слагаме токена ВЪТРЕ в user обекта, преди да го запазим
     const userWithToken = { ...userData, token };
     
-    localStorage.setItem("user", JSON.stringify(userWithToken));
+    storage.setItem("user", JSON.stringify(userWithToken));
     setUser(userWithToken);
   };
 
@@ -37,6 +44,9 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("userEmail");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
+    sessionStorage.removeItem("userEmail");
     setUser(null);
     window.location.href = "/";
   };
@@ -45,7 +55,12 @@ export const AuthProvider = ({ children }) => {
     setUser((prev) => {
         if (!prev) return null;
         const updated = { ...prev, ...data };
-        localStorage.setItem("user", JSON.stringify(updated)); 
+        if (sessionStorage.getItem("user")) {
+            sessionStorage.setItem("user", JSON.stringify(updated));
+        }
+        if (localStorage.getItem("user")) {
+            localStorage.setItem("user", JSON.stringify(updated)); 
+        }
         return updated;
     });
   };

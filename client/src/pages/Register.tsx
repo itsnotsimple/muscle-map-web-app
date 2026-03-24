@@ -37,7 +37,7 @@ const Register = () => {
         try {
             setError("");
             setIsSubmitting(true);
-            const response = await fetch("http://localhost:5000/api/google", {
+            const response = await fetch("https://muscle-map-main.onrender.com/api/google", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ access_token: tokenResponse.access_token }),
@@ -68,7 +68,7 @@ const Register = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/register", {
+      const response = await fetch("https://muscle-map-main.onrender.com/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

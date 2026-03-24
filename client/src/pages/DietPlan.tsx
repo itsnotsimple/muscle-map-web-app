@@ -73,7 +73,7 @@ const DietPlan = () => {
         const fetchDiets = async () => {
             setIsLoading(true);
             try {
-                const res = await fetch('http://localhost:5000/api/diets');
+                const res = await fetch('https://muscle-map-main.onrender.com/api/diets');
                 if (res.ok) {
                     const data = await res.json();
                     setDiets(data);
@@ -120,7 +120,7 @@ const DietPlan = () => {
         setIsSaving(true);
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:5000/api/user/profile', {
+            const res = await fetch('https://muscle-map-main.onrender.com/api/user/profile', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -337,7 +337,7 @@ const DietPlan = () => {
                                     
                                     {isLoading ? (
                                         <p className="text-slate-500">{t('diet.loading', 'Loading diet blueprints...')}</p>
-                                    ) : (
+                                    ) : (diets && diets.length > 0) ? (
                                         diets.map(diet => {
                                             // 1g Protein = 4 kcal, 1g Carbs = 4 kcal, 1g Fat = 9 kcal
                                             const proteinKcal = tdee * (diet.macroSplit.protein / 100);
@@ -381,7 +381,7 @@ const DietPlan = () => {
                                                             <p className="text-sm font-bold text-green-800 dark:text-green-500">{t('diet.goodFoods', 'Recommended Primary Foods')}</p>
                                                         </div>
                                                         <div className="flex flex-wrap gap-2">
-                                                            {diet.goodFoods.map((food, i) => (
+                                                            {diet.goodFoods?.map((food, i) => (
                                                                 <span key={i} className="text-xs font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-1 rounded-md border border-green-100 dark:border-green-900/30 transition-colors shadow-sm">{String(t(`db.${food}`, food))}</span>
                                                             ))}
                                                         </div>
@@ -389,6 +389,11 @@ const DietPlan = () => {
                                                 </div>
                                             )
                                         })
+                                    ) : (
+                                        <div className="bg-slate-50 dark:bg-slate-800 p-8 rounded-2xl text-center border border-slate-100 dark:border-slate-700 mt-4">
+                                            <p className="text-slate-500 dark:text-slate-400 font-medium">No diet templates found.</p>
+                                            <p className="text-slate-400 dark:text-slate-500 text-sm mt-2">Run <code className="bg-slate-200 dark:bg-slate-700 px-2 py-1 rounded text-pink-600 dark:text-pink-400">node seedData.js</code> in the server folder to populate the database.</p>
+                                        </div>
                                     )}
                                 </div>
                             </>

@@ -22,13 +22,13 @@ const MuscleDetail = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const muscleRes = await fetch(`http://localhost:5000/api/muscles/${muscleId}`);
+        const muscleRes = await fetch(`https://muscle-map-main.onrender.com/api/muscles/${muscleId}`);
         if (!muscleRes.ok) throw new Error("Muscle not found");
         const muscleJson = await muscleRes.json();
         setMuscleData(muscleJson);
 
         if (user) {
-          const bookmarksRes = await fetch("http://localhost:5000/api/user/bookmarks", {
+          const bookmarksRes = await fetch("https://muscle-map-main.onrender.com/api/user/bookmarks", {
             headers: { "Authorization": `Bearer ${user.token}` }
           });
           if (bookmarksRes.ok) {
@@ -63,7 +63,7 @@ const MuscleDetail = () => {
     setSavedExercises(newSavedList);
 
     try {
-      const response = await fetch("http://localhost:5000/api/user/bookmark", {
+      const response = await fetch("https://muscle-map-main.onrender.com/api/user/bookmark", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -158,8 +158,9 @@ const MuscleDetail = () => {
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {muscleData.exercises.map((ex: any, index: number) => {
-            const saved = isSaved(ex.name); 
+          {muscleData.exercises && muscleData.exercises.length > 0 ? (
+            muscleData.exercises.map((ex: any, index: number) => {
+              const saved = isSaved(ex.name); 
 
             return (
                 <div key={index} className="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-lg border border-slate-100 dark:border-slate-800 hover:shadow-xl transition-all flex flex-col relative group">
@@ -238,7 +239,12 @@ const MuscleDetail = () => {
                 </div>
                 </div>
             );
-          })}
+          })
+          ) : (
+             <div className="col-span-full py-12 text-center bg-slate-50 dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700">
+               <span className="text-slate-500 dark:text-slate-400 font-medium">{t('detail.noExercises', 'No exercises found.')}</span>
+             </div>
+          )}
         </div>
 
       </main>

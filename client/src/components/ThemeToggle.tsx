@@ -13,7 +13,7 @@ export function ThemeToggle() {
     if (user && user.token) {
       updateUser({ theme: newTheme })
       try {
-        await fetch("http://localhost:5000/api/user/preferences", {
+        await fetch("https://muscle-map-main.onrender.com/api/user/preferences", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",

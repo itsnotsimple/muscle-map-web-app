@@ -50,7 +50,7 @@ router.post('/register', async (req, res) => {
     await newUser.save();
 
     // Send Welcome & Verification Email
-    const verificationUrl = `http://localhost:8080/verify/${verificationToken}`;
+    const verificationUrl = `https://muscle-map-main.vercel.app/verify/${verificationToken}`;
     
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden;">

@@ -68,16 +68,13 @@ router.post('/register', async (req, res) => {
       </div>
     `;
 
-    try {
-        await sendEmail({
-            to: email,
-            subject: 'Welcome to Muscle Map - Verify Your Email',
-            html: emailHtml
-        });
-        console.log(`Verification email sent to ${email}`);
-    } catch (emailError) {
-        console.error('Email sending failed, but user created:', emailError);
-    }
+    // Fire-and-forget: Пращаме имейла във фонов режим, за да не бавим сървъра!
+    sendEmail({
+        to: email,
+        subject: 'Welcome to Muscle Map - Verify Your Email',
+        html: emailHtml
+    }).then(() => console.log(`Verification email sent to ${email}`))
+      .catch(emailError => console.error('Email sending failed in background:', emailError));
 
     res.status(201).json({ message: "User created successfully. Please check your email to verify." });
   } catch (err) {

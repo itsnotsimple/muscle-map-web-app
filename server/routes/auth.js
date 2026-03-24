@@ -200,6 +200,17 @@ router.post('/google', async (req, res) => {
     }
 });
 
+// 2.7 ПРОВЕРКА НА СТАТУС (GET)
+router.get('/user/status', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select('isVerified');
+        if (!user) return res.status(404).json({ message: "User not found" });
+        res.json({ isVerified: user.isVerified });
+    } catch (err) {
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
 // 3. ОБНОВЯВАНЕ НА ПРЕДПОЧИТАНИЯ (PUT)
 router.put('/user/preferences', authenticateToken, async (req, res) => {
   try {
@@ -323,6 +334,85 @@ router.delete('/user/profile', authenticateToken, async (req, res) => {
 
         await User.findByIdAndDelete(userId);
         res.json({ message: "Account deleted successfully" });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// 8. ЗАБРАВЕНА ПАРОЛА (FORGOT PASSWORD)
+router.post('/forgot-password', async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        if (user.authProvider !== 'local') {
+            return res.status(400).json({ message: `This account uses ${user.authProvider} login. Password reset is not available.` });
+        }
+
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        user.resetPasswordToken = resetToken;
+        user.resetPasswordExpires = Date.now() + 300000; // 5 minutes expiration
+        await user.save();
+
+        const resetUrl = `https://muscle-map-main.vercel.app/reset-password/${resetToken}`;
+        const emailHtml = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden;">
+                <div style="background-color: #1e293b; padding: 20px; text-align: center;">
+                    <h1 style="color: #ffffff; margin: 0; font-size: 24px;">MUSCLE MAP</h1>
+                </div>
+                <div style="padding: 30px; background-color: #ffffff;">
+                    <h2 style="color: #0f172a; margin-top: 0;">Password Reset Request</h2>
+                    <p style="color: #475569; font-size: 16px;">We received a request to reset your password. Click the button below to choose a new password. This link expires in 5 minutes.</p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="${resetUrl}" style="background-color: #2563eb; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Reset Password</a>
+                    </div>
+                    <p style="color: #475569; font-size: 14px;">If you didn't request a password reset, you can safely ignore this email.</p>
+                </div>
+            </div>
+        `;
+
+        const sendEmail = require('../utils/sendEmail');
+        
+        sendEmail({
+            to: user.email,
+            subject: 'Muscle Map - Password Reset Request',
+            html: emailHtml
+        }).catch(err => console.error("Forgot password email failed:", err));
+
+        res.json({ message: "Password reset link sent to your email!" });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// 9. СМЯНА НА ПАРОЛАТА (RESET PASSWORD)
+router.post('/reset-password/:token', async (req, res) => {
+    try {
+        const { password } = req.body;
+        const { token } = req.params;
+
+        const user = await User.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpires: { $gt: Date.now() } // Проверяваме дали токенът не е изтекъл
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: "Password reset token is invalid or has expired." });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(password, salt);
+        
+        // Премахваме токена
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save();
+
+        res.json({ message: "Password has been reset successfully. You can now login." });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

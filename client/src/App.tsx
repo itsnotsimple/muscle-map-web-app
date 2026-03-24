@@ -13,6 +13,8 @@ import BmiPage from "./pages/BmiPage";
 import DietPlan from './pages/DietPlan';
 import VerifyEmail from './pages/VerifyEmail';
 import Terms from './pages/Terms';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 const queryClient = new QueryClient();
 
@@ -29,6 +31,8 @@ const App = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/verify/:token" element={<VerifyEmail />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
           
           {/* Защитени страници */}
           <Route path="/bookmarks" element={<Bookmarks />} />

@@ -3,16 +3,35 @@ import { useTranslation } from "react-i18next";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { LogOut, Calendar, Mail, ShieldCheck, Activity, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const Profile = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const { t } = useTranslation();
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
+
+  // Auto-sync verification status if user verified in another tab/device
+  useEffect(() => {
+    const checkVerificationStatus = async () => {
+        if (!user || user.isVerified) return;
+        try {
+            const res = await fetch('https://electronic-nadiya-musclemap-a30e9055.koyeb.app/api/user/status', {
+                headers: { 'Authorization': `Bearer ${user.token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.isVerified) updateUser({ isVerified: true });
+            }
+        } catch (e) {
+            console.error("Failed to sync verification status");
+        }
+    };
+    checkVerificationStatus();
+  }, [user]);
 
   const handleDeleteAccount = async () => {
     setIsDeleting(true);

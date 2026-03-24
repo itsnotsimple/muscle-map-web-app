@@ -117,7 +117,12 @@
     "justJoined": "Just joined",
     "physicalProfile": "Physical Profile",
     "noPhysicalProfile": "Not entered yet",
-    "signOut": "Sign Out"
+    "signOut": "Sign Out",
+    "deleteAccount": "Delete Account",
+    "confirmDeleteDesc": "Are you sure you want to permanently delete your account? This action cannot be reversed.",
+    "enterPassword": "Enter your password to confirm",
+    "confirmDelete": "Confirm Delete",
+    "cancel": "Cancel"
   },
   "detail": {
     "notFound": "Muscle Not Found",

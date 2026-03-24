@@ -249,5 +249,17 @@
     "Back of thigh": "Back of thigh",
     "Buttocks": "Buttocks",
     "Lower leg": "Lower leg"
+  },
+  "badges": {
+    "title": "Achievements",
+    "subtitle": "Unlock badges by exploring the platform.",
+    "showAll": "Show All",
+    "hideLocked": "Hide Locked",
+    "rookie": { "title": "Rookie", "desc": "Started your journey." },
+    "verified": { "title": "Verified", "desc": "Confirmed your email address." },
+    "nutritionist": { "title": "Nutrition Analyst", "desc": "Completed your Physical Profile." },
+    "librarian": { "title": "Librarian", "desc": "Saved 10+ exercises." },
+    "nightowl": { "title": "Night Owl", "desc": "Switched to Dark Mode." },
+    "bilingual": { "title": "Bilingual", "desc": "Explored the app in Bulgarian." }
   }
 }

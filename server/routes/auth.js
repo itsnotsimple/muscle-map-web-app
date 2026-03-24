@@ -113,6 +113,10 @@ router.post('/login', async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "User not found" });
 
+    if (user.authProvider !== 'local') {
+        return res.status(400).json({ message: `This account uses ${user.authProvider} login. Please use the ${user.authProvider} button.` });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
@@ -128,6 +132,7 @@ router.post('/login', async (req, res) => {
             physicalProfile: user.physicalProfile,
             isVerified: user.isVerified,
             authProvider: user.authProvider,
+            unlockedBadges: user.unlockedBadges,
             createdAt: user.createdAt
         } 
     });
@@ -190,6 +195,7 @@ router.post('/google', async (req, res) => {
                 physicalProfile: user.physicalProfile,
                 isVerified: user.isVerified,
                 authProvider: user.authProvider,
+                unlockedBadges: user.unlockedBadges,
                 createdAt: user.createdAt
             } 
         });
@@ -251,6 +257,26 @@ router.put('/user/profile', authenticateToken, async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
+});
+
+// 3.8 ДОБАВЯНЕ НА BADGE (PUT)
+router.put('/user/badges', authenticateToken, async (req, res) => {
+    try {
+        const { badgeId } = req.body;
+        const userId = req.user.id;
+        
+        if (!badgeId) return res.status(400).json({ message: "Badge ID required" });
+
+        const user = await User.findByIdAndUpdate(
+            userId,
+            { $addToSet: { unlockedBadges: badgeId } },
+            { new: true }
+        );
+
+        res.json({ message: "Badge unlocked", unlockedBadges: user.unlockedBadges });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
 });
 
 // 4. ДОБАВЯНЕ НА BOOKMARK (POST) - ПОПРАВЕНО
@@ -402,6 +428,11 @@ router.post('/reset-password/:token', async (req, res) => {
 
         if (!user) {
             return res.status(400).json({ message: "Password reset token is invalid or has expired." });
+        }
+
+        const isSamePassword = await bcrypt.compare(password, user.password);
+        if (isSamePassword) {
+            return res.status(400).json({ message: "Your new password cannot be the same as your old password." });
         }
 
         const salt = await bcrypt.genSalt(10);

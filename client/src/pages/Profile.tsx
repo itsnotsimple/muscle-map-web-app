@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { LogOut, Calendar, Mail, ShieldCheck, Activity, Trash2 } from "lucide-react";
+import BadgesDisplay from "../components/BadgesDisplay";
 import { useEffect, useState } from "react";
 
 const Profile = () => {
@@ -183,6 +184,9 @@ const Profile = () => {
                     </div>
                   </div>
               )}
+
+              {/* GAMIFICATION BADGES */}
+              <BadgesDisplay />
 
             </div>
 

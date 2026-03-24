@@ -7,6 +7,7 @@ const UserSchema = new mongoose.Schema({
   verificationToken: { type: String },
   resetPasswordToken: { type: String },
   resetPasswordExpires: { type: Date },
+  unlockedBadges: [{ type: String }],
   authProvider: { type: String, enum: ['local', 'google', 'apple'], default: 'local' },
   theme: { type: String, default: 'system' },
   language: {

@@ -201,6 +201,27 @@ const data = [
     ]
   },
   {
+    key: "neck",
+    title: "Neck",
+    subTitle: "Cervical Muscles",
+    exercises: [
+      {
+        name: "Neck Curls",
+        text: "Strengthens the front of the neck.",
+        difficulty: "Beginner",
+        equipment: "Weight Plate", location: "Gym / Home", gif: "/images/demos/neck_curl.gif",
+        steps: ["Lie on bench face up", "Place plate on forehead", "Curl neck upward"]
+      },
+      {
+        name: "Neck Extensions",
+        text: "Strengthens the back of the neck.",
+        difficulty: "Intermediate",
+        equipment: "Weight Plate / Harness", location: "Gym", gif: "/images/demos/neck_extension.gif",
+        steps: ["Lie on bench face down", "Place plate on back of head", "Extend neck upward"]
+      }
+    ]
+  },
+  {
     key: "traps",
     title: "Traps",
     subTitle: "Trapezius",

@@ -13,18 +13,20 @@ import AnimatedContent from "../components/reactbits/AnimatedContent";
 
 const MUSCLE_GROUPS = [
   { id: "chest", translationKey: "chest", icon: Shield, gradient: "from-blue-500 to-cyan-500" },
-  { id: "back", translationKey: "back", icon: Activity, gradient: "from-indigo-500 to-blue-500" },
+  { id: "upper_back", translationKey: "upper_back", icon: Target, gradient: "from-indigo-600 to-blue-600" },
+  { id: "lower_back", translationKey: "lower_back", icon: Activity, gradient: "from-teal-500 to-emerald-500" },
   { id: "lats", translationKey: "lats", icon: Triangle, gradient: "from-violet-500 to-indigo-500" },
   { id: "shoulders", translationKey: "shoulders", icon: Mountain, gradient: "from-sky-500 to-indigo-500" },
   { id: "biceps", translationKey: "biceps", icon: Dumbbell, gradient: "from-fuchsia-500 to-pink-500" },
   { id: "triceps", translationKey: "triceps", icon: Target, gradient: "from-rose-500 to-red-500" },
   { id: "forearms", translationKey: "forearms", icon: Swords, gradient: "from-orange-500 to-red-500" },
   { id: "abs", translationKey: "abs", icon: LayoutGrid, gradient: "from-emerald-500 to-teal-500" },
+  { id: "obliques", translationKey: "obliques", icon: Crosshair, gradient: "from-sky-400 to-blue-500" },
   { id: "glutes", translationKey: "glutes", icon: Flame, gradient: "from-pink-500 to-rose-500" },
   { id: "quads", translationKey: "quads", icon: Zap, gradient: "from-lime-500 to-emerald-500" },
   { id: "hamstrings", translationKey: "hamstrings", icon: Crosshair, gradient: "from-blue-400 to-indigo-400" },
   { id: "calves", translationKey: "calves", icon: Activity, gradient: "from-cyan-500 to-blue-500" },
-  { id: "neck", translationKey: "neck", icon: Target, gradient: "from-slate-500 to-slate-700" }
+  { id: "traps", translationKey: "traps", icon: Mountain, gradient: "from-slate-500 to-slate-700" }
 ];
 
 const Exercises = () => {

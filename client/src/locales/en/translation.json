@@ -265,18 +265,20 @@
   },
   "muscles": {
     "chest": "Chest",
-    "back": "Lower Back",
+    "lower_back": "Lower Back",
+    "upper_back": "Upper Back",
     "lats": "Lats",
     "shoulders": "Shoulders",
     "biceps": "Biceps",
     "triceps": "Triceps",
     "forearms": "Forearms",
     "abs": "Abs",
+    "obliques": "Obliques",
     "glutes": "Glutes",
     "quads": "Quads",
     "hamstrings": "Hamstrings",
     "calves": "Calves",
-    "neck": "Neck"
+    "traps": "Traps"
   },
   "badges": {
     "title": "Achievements",

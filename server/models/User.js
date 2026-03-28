@@ -9,6 +9,11 @@ const UserSchema = new mongoose.Schema({
   resetPasswordExpires: { type: Date },
   unlockedBadges: [{ type: String }],
   authProvider: { type: String, enum: ['local', 'google', 'apple'], default: 'local' },
+  isPremium: { type: Boolean, default: false },
+  stripeCustomerId: { type: String },
+  stripeSubscriptionId: { type: String },
+  aiMessageCount: { type: Number, default: 0 },
+  aiMessageDate: { type: Date },
   theme: { type: String, default: 'system' },
   language: {
     type: String,

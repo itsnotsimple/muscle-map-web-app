@@ -16,12 +16,12 @@ exports.register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
     const verificationToken = crypto.randomBytes(32).toString('hex');
 
-    const newUser = new User({ 
-        email, 
-        password: hashedPassword,
-        verificationToken,
-        isVerified: false,
-        authProvider: 'local'
+    const newUser = new User({
+      email,
+      password: hashedPassword,
+      verificationToken,
+      isVerified: false,
+      authProvider: 'local'
     });
     await newUser.save();
 
@@ -42,9 +42,9 @@ exports.register = async (req, res) => {
     `;
 
     sendEmail({
-        to: email,
-        subject: 'Welcome to Muscle Map - Verify Your Email',
-        html: emailHtml
+      to: email,
+      subject: 'Welcome to Muscle Map - Verify Your Email',
+      html: emailHtml
     }).catch(err => console.error('Email sending failed:', err));
 
     res.status(201).json({ message: "User created successfully. Please check your email to verify." });
@@ -54,20 +54,20 @@ exports.register = async (req, res) => {
 };
 
 exports.verifyEmail = async (req, res) => {
-    try {
-        const { token } = req.params;
-        const user = await User.findOne({ verificationToken: token });
+  try {
+    const { token } = req.params;
+    const user = await User.findOne({ verificationToken: token });
 
-        if (!user) return res.status(400).json({ message: "Invalid or expired verification token" });
+    if (!user) return res.status(400).json({ message: "Invalid or expired verification token" });
 
-        user.isVerified = true;
-        user.verificationToken = undefined;
-        await user.save();
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    await user.save();
 
-        res.json({ message: "Email successfully verified!" });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
+    res.json({ message: "Email successfully verified!" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
 exports.login = async (req, res) => {
@@ -82,19 +82,20 @@ exports.login = async (req, res) => {
     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
-    res.json({ 
-        token, 
-        user: { 
-            email: user.email, 
-            savedExercises: user.savedExercises,
-            theme: user.theme || 'system',
-            language: user.language || 'en',
-            physicalProfile: user.physicalProfile,
-            isVerified: user.isVerified,
-            authProvider: user.authProvider,
-            unlockedBadges: user.unlockedBadges,
-            createdAt: user.createdAt
-        } 
+    res.json({
+      token,
+      user: {
+        email: user.email,
+        savedExercises: user.savedExercises,
+        theme: user.theme || 'system',
+        language: user.language || 'en',
+        physicalProfile: user.physicalProfile,
+        isVerified: user.isVerified,
+        authProvider: user.authProvider,
+        unlockedBadges: user.unlockedBadges,
+        createdAt: user.createdAt,
+        isPremium: user.isPremium
+      }
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -102,54 +103,55 @@ exports.login = async (req, res) => {
 };
 
 exports.googleLogin = async (req, res) => {
-    try {
-        const { access_token } = req.body;
-        if (!access_token) return res.status(400).json({ message: "No access token provided" });
+  try {
+    const { access_token } = req.body;
+    if (!access_token) return res.status(400).json({ message: "No access token provided" });
 
-        const googleResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-            headers: { Authorization: `Bearer ${access_token}` }
-        });
-        
-        if (!googleResponse.ok) throw new Error("Failed to verify Google Token");
+    const googleResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: `Bearer ${access_token}` }
+    });
 
-        const payload = await googleResponse.json();
-        const email = payload.email;
+    if (!googleResponse.ok) throw new Error("Failed to verify Google Token");
 
-        if (!email) return res.status(400).json({ message: "No email associated" });
+    const payload = await googleResponse.json();
+    const email = payload.email;
 
-        let user = await User.findOne({ email });
+    if (!email) return res.status(400).json({ message: "No email associated" });
 
-        if (!user) {
-            const salt = await bcrypt.genSalt(10);
-            const randomPassword = crypto.randomBytes(16).toString('hex');
-            const hashedPassword = await bcrypt.hash(randomPassword, salt);
+    let user = await User.findOne({ email });
 
-            user = new User({ email, password: hashedPassword, isVerified: true, authProvider: 'google' });
-            await user.save();
-        }
+    if (!user) {
+      const salt = await bcrypt.genSalt(10);
+      const randomPassword = crypto.randomBytes(16).toString('hex');
+      const hashedPassword = await bcrypt.hash(randomPassword, salt);
 
-        const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
-        res.json({ 
-            token, 
-            user: { 
-                email: user.email, savedExercises: user.savedExercises, theme: user.theme,
-                language: user.language, physicalProfile: user.physicalProfile, isVerified: user.isVerified,
-                authProvider: user.authProvider, unlockedBadges: user.unlockedBadges, createdAt: user.createdAt
-            } 
-        });
-
-    } catch (err) {
-        res.status(500).json({ message: "Google Authentication Failed" });
+      user = new User({ email, password: hashedPassword, isVerified: true, authProvider: 'google' });
+      await user.save();
     }
+
+    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
+    res.json({
+      token,
+      user: {
+        email: user.email, savedExercises: user.savedExercises, theme: user.theme,
+        language: user.language, physicalProfile: user.physicalProfile, isVerified: user.isVerified,
+        authProvider: user.authProvider, unlockedBadges: user.unlockedBadges, createdAt: user.createdAt,
+        isPremium: user.isPremium
+      }
+    });
+
+  } catch (err) {
+    res.status(500).json({ message: "Google Authentication Failed" });
+  }
 };
 
 // ... User Profile logic
 exports.getUserStatus = async (req, res) => {
-    try {
-        const user = await User.findById(req.user.id).select('isVerified');
-        if (!user) return res.status(404).json({ message: "User not found" });
-        res.json({ isVerified: user.isVerified });
-    } catch (err) { res.status(500).json({ message: "Server error" }); }
+  try {
+    const user = await User.findById(req.user.id).select('isVerified isPremium');
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json({ isVerified: user.isVerified, isPremium: user.isPremium });
+  } catch (err) { res.status(500).json({ message: "Server error" }); }
 };
 
 exports.updatePreferences = async (req, res) => {
@@ -185,15 +187,20 @@ exports.addBookmark = async (req, res) => {
   try {
     const { exercise } = req.body;
     const user = await User.findById(req.user.id);
-    
+
     if (user.savedExercises.find(ex => ex.name === exercise.name)) {
       return res.status(400).json({ message: "Already saved" });
+    }
+
+    // Limit free users to 10 bookmarks
+    if (!user.isPremium && user.savedExercises.length >= 10) {
+      return res.status(403).json({ message: "LIMIT_REACHED" });
     }
 
     const newBookmark = { name: exercise.name, muscleGroup: exercise.muscleGroup, gif: exercise.gif || "", difficulty: exercise.difficulty || "Beginner" };
     user.savedExercises.push(newBookmark);
     await user.save();
-    
+
     res.json(user.savedExercises);
   } catch (err) { res.status(500).json({ message: err.message }); }
 };
@@ -210,68 +217,68 @@ exports.deleteBookmark = async (req, res) => {
     const user = await User.findById(req.user.id);
     user.savedExercises.pull({ _id: req.params.id });
     await user.save();
-    res.json(user.savedExercises); 
+    res.json(user.savedExercises);
   } catch (err) { res.status(500).json({ message: "Error" }); }
 };
 
 exports.addBadge = async (req, res) => {
-    try {
-        const { badgeId } = req.body;
-        if (!badgeId) return res.status(400).json({ message: "Badge ID required" });
-        const user = await User.findByIdAndUpdate(req.user.id, { $addToSet: { unlockedBadges: badgeId } }, { new: true });
-        res.json({ message: "Badge unlocked", unlockedBadges: user.unlockedBadges });
-    } catch (err) { res.status(500).json({ message: err.message }); }
+  try {
+    const { badgeId } = req.body;
+    if (!badgeId) return res.status(400).json({ message: "Badge ID required" });
+    const user = await User.findByIdAndUpdate(req.user.id, { $addToSet: { unlockedBadges: badgeId } }, { new: true });
+    res.json({ message: "Badge unlocked", unlockedBadges: user.unlockedBadges });
+  } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
 exports.deleteAccount = async (req, res) => {
-    try {
-        const { password } = req.body;
-        const user = await User.findById(req.user.id);
-        if (!user) return res.status(404).json({ message: "User not found" });
+  try {
+    const { password } = req.body;
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-        if (user.authProvider === 'local') {
-            if (!password) return res.status(400).json({ message: "Password required" });
-            const isMatch = await bcrypt.compare(password, user.password);
-            if (!isMatch) return res.status(400).json({ message: "Incorrect password" });
-        }
-        await User.findByIdAndDelete(req.user.id);
-        res.json({ message: "Account deleted" });
-    } catch (err) { res.status(500).json({ message: err.message }); }
+    if (user.authProvider === 'local') {
+      if (!password) return res.status(400).json({ message: "Password required" });
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) return res.status(400).json({ message: "Incorrect password" });
+    }
+    await User.findByIdAndDelete(req.user.id);
+    res.json({ message: "Account deleted" });
+  } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
 exports.forgotPassword = async (req, res) => {
-    try {
-        const { email } = req.body;
-        const user = await User.findOne({ email });
-        if (!user || user.authProvider !== 'local') return res.status(400).json({ message: "No standard account found with this email. You may have signed up with Google." });
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user || user.authProvider !== 'local') return res.status(400).json({ message: "No standard account found with this email. You may have signed up with Google." });
 
-        const resetToken = crypto.randomBytes(32).toString('hex');
-        user.resetPasswordToken = resetToken;
-        user.resetPasswordExpires = Date.now() + 300000;
-        await user.save();
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = Date.now() + 300000;
+    await user.save();
 
-        const resetUrl = `https://muscle-map-main.vercel.app/reset-password/${resetToken}`;
-        const emailHtml = `<a href="${resetUrl}">Reset Password</a>`;
+    const resetUrl = `https://muscle-map-main.vercel.app/reset-password/${resetToken}`;
+    const emailHtml = `<a href="${resetUrl}">Reset Password</a>`;
 
-        sendEmail({ to: user.email, subject: 'Password Reset', html: emailHtml }).catch(console.error);
-        res.json({ message: "Reset link sent" });
-    } catch (err) { res.status(500).json({ message: err.message }); }
+    sendEmail({ to: user.email, subject: 'Password Reset', html: emailHtml }).catch(console.error);
+    res.json({ message: "Reset link sent" });
+  } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
 exports.resetPassword = async (req, res) => {
-    try {
-        const { password } = req.body;
-        const user = await User.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } });
-        if (!user) return res.status(400).json({ message: "Token invalid/expired" });
+  try {
+    const { password } = req.body;
+    const user = await User.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } });
+    if (!user) return res.status(400).json({ message: "Token invalid/expired" });
 
-        const isSame = await bcrypt.compare(password, user.password);
-        if (isSame) return res.status(400).json({ message: "New password must be different" });
+    const isSame = await bcrypt.compare(password, user.password);
+    if (isSame) return res.status(400).json({ message: "New password must be different" });
 
-        const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(password, salt);
-        user.resetPasswordToken = undefined;
-        user.resetPasswordExpires = undefined;
-        await user.save();
-        res.json({ message: "Password reset" });
-    } catch (err) { res.status(500).json({ message: err.message }); }
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(password, salt);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+    res.json({ message: "Password reset" });
+  } catch (err) { res.status(500).json({ message: err.message }); }
 };

@@ -1,4 +1,4 @@
-import { Award, CheckCircle2, Flame, Globe2, BookOpen, Moon } from "lucide-react";
+import { Award, CheckCircle2, Flame, Globe2, BookOpen, Moon, Crown } from "lucide-react";
 
 export interface Badge {
   id: string;
@@ -77,5 +77,15 @@ export const GAMIFICATION_BADGES: Badge[] = [
     animationClass: "animate-spin-slow",
     translationKey: "badges.bilingual",
     evaluate: (user: any) => user?.language === 'bg'
+  },
+  {
+    id: "pro_athlete",
+    icon: Crown,
+    colorClass: "text-yellow-400",
+    bgClass: "bg-yellow-400/10",
+    borderClass: "border-yellow-400/50",
+    animationClass: "animate-pulse",
+    translationKey: "badges.pro_athlete",
+    evaluate: (user: any) => user?.isPremium === true
   }
 ];

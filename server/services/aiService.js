@@ -27,10 +27,14 @@ REFUSAL:
 STRICT GRAMMAR (Bulgarian):
 - Use correct gender and cases. It's "платформа" (not платформ), "Имаме" (not Има ли сме).`;
 
-exports.generateChatResponse = async (message, history = []) => {
+exports.generateChatResponse = async (message, history = [], userProfileContext = "") => {
     try {
+        const fullSystemPrompt = userProfileContext 
+            ? `${SYSTEM_PROMPT}\n\nUSER CONTEXT (Use this to give personalized advice): ${userProfileContext}`
+            : SYSTEM_PROMPT;
+
         const messages = [
-            { role: 'system', content: SYSTEM_PROMPT },
+            { role: 'system', content: fullSystemPrompt },
             ...history,
             { role: 'user', content: message }
         ];

@@ -82,6 +82,8 @@
   },
   "bookmarks": {
     "loginRequired": "Login Required",
+    "limitTitle": "Bookmark Limit Reached",
+    "limitDesc": "Free members can save up to 10 custom exercises. Upgrade to Premium for unlimited bookmarks.",
     "myCollection": "My Collection",
     "noExercises": "No exercises saved yet.",
     "goToMap": "Go to Map",
@@ -108,6 +110,7 @@
     "logIn": "Log In"
   },
   "profile": {
+    "myProfile": "My Profile",
     "unknown": "Unknown",
     "accountDetails": "Account Details",
     "emailAddress": "Email Address",
@@ -122,7 +125,10 @@
     "confirmDeleteDesc": "Are you sure you want to permanently delete your account? This action cannot be reversed.",
     "enterPassword": "Enter your password to confirm",
     "confirmDelete": "Confirm Delete",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "freeMember": "Free Member",
+    "premiumMember": "Premium Member",
+    "premiumPromoDesc": "Get access to unlimited saved custom workouts, an AI custom workout generator, priority updates, and an exclusive Pro Athlete badge."
   },
   "detail": {
     "notFound": "Muscle Not Found",
@@ -292,16 +298,51 @@
     "nutritionist": { "title": "Nutrition Analyst", "desc": "Completed your Physical Profile." },
     "librarian": { "title": "Librarian", "desc": "Saved 10+ exercises." },
     "nightowl": { "title": "Night Owl", "desc": "Switched to Dark Mode." },
-    "bilingual": { "title": "Bilingual", "desc": "Explored the app in Bulgarian." }
+    "bilingual": { "title": "Bilingual", "desc": "Explored the app in Bulgarian." },
+    "pro_athlete": { "title": "Pro Athlete", "desc": "Unlocked MuscleMap Premium." }
   },
   "chatbot": {
     "title": "MuscleMap AI",
     "subtitle": "Expert Coach",
     "greeting": "Hi! I am **MuscleMap AI**. How can I help you with your fitness journey today?",
     "placeholder": "Ask about fitness or diet...",
+    "placeholderPremium": "Ask your PRO AI Coach anything...",
     "loginPrompt": "Login to ask questions",
     "signInBtn": "Sign In to Chat",
     "consulting": "Consulting..."
+  },
+  "chat": {
+    "limitTitle": "Daily Limit Reached",
+    "limitDesc": "Free members are limited to 5 AI messages per day. Upgrade to Premium for unlimited contextual AI coaching."
+  },
+  "planner": {
+    "title": "Workout Planner",
+    "subtitle": "AI Custom Training Generator",
+    "lockedTitle": "Premium Feature",
+    "lockedDesc": "Unlock MuscleMap Pro to access the personalized workout planner and build your ultimate 7-day routine based on your goals.",
+    "goal": "What is your goal?",
+    "days": "How many days a week?",
+    "level": "Experience level",
+    "generate": "Generate Plan",
+    "comingSoon": "Coming Soon!",
+    "day": "Day"
+  },
+  "premium": {
+    "title": "Unlock MuscleMap",
+    "pro": "Pro",
+    "subtitle": "The ultimate fitness intelligence experience. Say goodbye to guesswork and upgrade to an AI coach that truly knows your body.",
+    "cardTitle": "Pro Athlete",
+    "oneTime": "ONE-TIME",
+    "features": {
+      "workouts": "Unlimited Saved Custom Workouts",
+      "workoutPlanner": "AI Custom Workout Generator",
+      "badge": "Exclusive 'Pro Athlete' Profile Badge",
+      "deepContext": "Unlimited AI Coach Messages"
+    },
+    "alreadyMember": "You are a Premium Member",
+    "upgradeBtn": "Upgrade with 1-Click Checkout",
+    "redirecting": "Redirecting to Stripe...",
+    "stripeText": "Secure payments via"
   }
 }
 

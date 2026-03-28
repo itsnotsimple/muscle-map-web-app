@@ -1,7 +1,7 @@
 # 💪 MuscleMap AI — Interactive Fitness Intelligence Platform
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
-![Version](https://img.shields.io/badge/version-2.0.0-blue)
+![Version](https://img.shields.io/badge/version-2.0.1-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![React](https://img.shields.io/badge/Frontend-React%20%2B%20TypeScript-61DAFB?logo=react)
 ![Node](https://img.shields.io/badge/Backend-Node.js%20%2B%20Express-339933?logo=node.js)
@@ -19,7 +19,9 @@
 An SVG-based interactive anatomical model covering the full body. Click any muscle group to instantly explore curated exercises with GIF demonstrations, step-by-step instructions, difficulty levels, equipment requirements, and YouTube tutorial links.
 
 ### 🤖 MuscleMap AI Coach
-A real-time AI chatbot powered by **Llama 3.1** (via Groq). The coach mirrors the user's language (English or Bulgarian), responds like a real gym coach — direct, motivating, and practical — and refuses off-topic questions to stay focused on fitness.
+A real-time AI chatbot powered by **Llama 3.1** (via Groq). The coach mirrors the user's language (English or Bulgarian), responds like a real gym coach, and is aware of premium user profiles to give tailored advice based on age, weight, and goals.
+- **Free Tier:** 5 messages per rolling 24-hours.
+- **MuscleMap Pro:** Unlimited messages and deep contextual context injection.
 
 ### 🥗 Custom Diet Plan Generator
 Calculates daily caloric needs using the Harris-Benedict equation adjusted for activity level. Generates four structured diet blueprint plans: Balanced, High Protein, Ketogenic, and Low Fat — each with macro splits and recommended foods.
@@ -41,6 +43,13 @@ Full app-wide localization using **i18next**. Every UI string — including the 
 - Google OAuth login
 - JWT-based session management
 - Forgot/reset password via email link
+
+### 💎 Premium Membership (Stripe)
+A fully integrated Stripe checkout flow that unlocks **MuscleMap Pro**. Premium users receive:
+- **Unlimited AI Coach Messages** (with deep physical profile context injected).
+- **AI Custom Workout Generator** (Premium locked).
+- **Unlimited Bookmarks** (Free users restricted to 10).
+- Exclusive `Pro Athlete` user badge.
 
 ---
 
@@ -71,6 +80,7 @@ Full app-wide localization using **i18next**. Every UI string — including the 
 | JWT | Authentication tokens |
 | Nodemailer | Email verification & password reset |
 | bcrypt | Password hashing |
+| Stripe | Subscription & Checkout Sessions |
 | CORS | Cross-origin resource control |
 
 ### Infrastructure
@@ -80,6 +90,7 @@ Full app-wide localization using **i18next**. Every UI string — including the 
 | **Koyeb** | Backend hosting |
 | **MongoDB Atlas** | Cloud database |
 | **Groq** | AI inference API |
+| **Stripe** | Payment processing |
 
 ---
 
@@ -92,6 +103,8 @@ Full app-wide localization using **i18next**. Every UI string — including the 
 - Node.js 18+
 - MongoDB (local or Atlas)
 - Groq API key ([console.groq.com](https://console.groq.com))
+- Stripe API key ([stripe.com](https://stripe.com))
+
 
 ### 1. Clone & install
 
@@ -119,6 +132,9 @@ GROQ_API_KEY=your_groq_api_key
 EMAIL_USER=your_email@gmail.com
 EMAIL_PASS=your_gmail_app_password
 EMAIL_SERVICE=Gmail
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+FRONTEND_URL=http://localhost:8080 (or your production url)
 ```
 
 ### 3. Run the app
@@ -173,7 +189,9 @@ The `server/` directory is deployed to Koyeb. Add all variables from `.env` as *
 | DELETE | `/api/user/bookmarks/:id` | ✅ | Remove a bookmark |
 | GET | `/api/muscles/:key` | ❌ | Get exercises for a muscle |
 | GET | `/api/diets` | ❌ | Get all diet plans |
+| GET | `/api/chat/status` | ✅ | Get daily AI message limit status |
 | POST | `/api/chat` | ✅ | Send message to AI coach |
+| POST | `/api/stripe/create-checkout-session` | ✅ | Create Stripe checkout session |
 
 ---
 

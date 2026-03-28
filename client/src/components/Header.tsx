@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { User, LogOut, Calculator, Apple, Bookmark, Map, Activity, User as UserIcon, LogIn, UserPlus } from "lucide-react";
+import { User, LogOut, Calculator, Apple, Bookmark, Map, Activity, User as UserIcon, LogIn, UserPlus, Zap } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageToggle } from "./LanguageToggle";
@@ -20,6 +20,7 @@ const Header = () => {
       links: [
         { label: t('header.bmi', "BMI Calculator"), href: "/bmi", icon: Calculator },
         { label: t('diet.title', "Diet Plan"), href: "/diet", icon: Apple },
+        { label: t('planner.title', "Workout Planner"), href: "/workout-planner", icon: Zap },
         { label: t('header.bookmark', "Bookmarks"), href: "/bookmarks", icon: Bookmark }
       ]
     },

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { ApiService } from '../services/api';
-import { MessageCircle, X, Send, Loader2, Bot } from 'lucide-react';
+import { MessageCircle, X, Send, Loader2, Bot, Crown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
@@ -20,6 +20,9 @@ const Chatbot = () => {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showLimitModal, setShowLimitModal] = useState(false);
+  const [remaining, setRemaining] = useState<number | null>(null);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -29,6 +32,26 @@ const Chatbot = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages, isOpen]);
+
+  // Fetch initial limit status on mount or login
+  useEffect(() => {
+    if (user && !user.isPremium && remaining === null) {
+      const fetchStatus = async () => {
+        try {
+          const res = await ApiService.getChatStatus(user.token);
+          if (res.ok) {
+            const data = await res.json();
+            if (typeof data.remainingMessages === 'number') {
+              setRemaining(data.remainingMessages);
+            }
+          }
+        } catch (e) {
+          console.error("Failed to fetch chat status", e);
+        }
+      };
+      fetchStatus();
+    }
+  }, [user, remaining]);
 
   const handleSend = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -45,32 +68,54 @@ const Chatbot = () => {
       const response = await ApiService.chat(user.token, userMessage, historyPayload);
       const data = await response.json();
       
+      if (response.status === 403 && data.error === "LIMIT_REACHED") {
+        setShowLimitModal(true);
+        // Remove the user's message from the UI since it wasn't processed
+        setMessages(messages);
+        return;
+      }
+
       if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+            throw new Error(data.message || data.error || 'Your session has expired. Please log out and log back in.');
+        }
         throw new Error(data.error || 'Failed to chat');
       }
 
       setMessages([...newMessages, { role: 'assistant', content: data.reply }]);
+      if (data.remainingMessages !== undefined && data.remainingMessages !== null) {
+        setRemaining(data.remainingMessages);
+      }
     } catch (error) {
       console.error(error);
-      setMessages([...newMessages, { role: 'assistant', content: 'There was an error reaching the coaching servers. Please try again.' }]);
+      setMessages([...newMessages, { role: 'assistant', content: error instanceof Error ? error.message : 'There was an error reaching the coaching servers. Please try again.' }]);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 font-sans">
-      {isOpen && (
+    <>
+      <div className="fixed bottom-6 right-6 z-50 font-sans">
+        {isOpen && (
         <div className="absolute bottom-20 right-0 w-[350px] max-w-[calc(100vw-48px)] h-[500px] max-h-[calc(100vh-120px)] bg-white/90 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 pointer-events-auto">
           {/* Header */}
           <div className="bg-blue-600 dark:bg-blue-700 text-white p-4 flex items-center justify-between shadow-sm relative z-10">
             <div className="flex items-center gap-3">
-              <div className="bg-white/20 p-1.5 rounded-full">
+              <div className="bg-white/20 p-1.5 rounded-full relative">
                 <Bot size={20} className="text-white" />
+                {user?.isPremium && (
+                  <div className="absolute -bottom-1 -right-1 bg-yellow-400 text-slate-900 rounded-full p-0.5 shadow-sm" title="PRO">
+                    <Crown size={10} strokeWidth={3} />
+                  </div>
+                )}
               </div>
               <div>
                 <h3 className="font-bold text-sm tracking-wide">{t('chatbot.title')}</h3>
-                <span className="text-[10px] uppercase font-semibold text-blue-200 tracking-wider">{t('chatbot.subtitle')}</span>
+                <span className="text-[10px] uppercase font-semibold text-blue-200 tracking-wider">
+                  {user?.isPremium && <span className="text-yellow-300 font-black mr-1">PRO</span>}
+                  {t('chatbot.subtitle')}
+                </span>
               </div>
             </div>
             <button onClick={() => setIsOpen(false)} className="hover:bg-white/20 p-2 rounded-xl transition-colors">
@@ -129,7 +174,10 @@ const Chatbot = () => {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder={t('chatbot.placeholder')}
+                  placeholder={
+                    user?.isPremium ? t('chatbot.placeholderPremium', 'Ask your PRO AI Coach anything...') 
+                    : (remaining !== null ? `${t('chatbot.placeholder')} (${remaining} left)` : t('chatbot.placeholder', 'Ask about fitness or diet...'))
+                  }
                   className="w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 rounded-full pl-5 pr-14 py-3.5 focus:outline-none focus:ring-0 transition-all text-sm border border-slate-200 dark:border-slate-800 focus:border-blue-500 dark:focus:border-blue-600 font-medium placeholder-slate-400"
                 />
                 <button
@@ -155,6 +203,37 @@ const Chatbot = () => {
         {isOpen ? <X size={24} /> : <MessageCircle size={28} />}
       </button>
     </div>
+
+    {/* LIMIT MODAL OVERLAY */}
+    {showLimitModal && (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+        <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 max-w-sm w-full shadow-2xl relative border border-slate-200 dark:border-slate-800 text-center animate-in fade-in zoom-in duration-300">
+             <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-blue-500 mx-auto mb-4 border border-blue-200 dark:border-blue-700/50">
+               <Bot size={28} />
+             </div>
+             <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">{t('chat.limitTitle', 'Daily Limit Reached')}</h3>
+             <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 font-medium">
+               {t('chat.limitDesc', 'Free members are limited to 5 AI messages per day. Upgrade to Premium for unlimited contextual AI coaching.')}
+             </p>
+             <div className="flex flex-col gap-3">
+               <Link 
+                  to="/premium"
+                  onClick={() => setShowLimitModal(false)}
+                  className="w-full py-3.5 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-slate-900 rounded-xl font-bold shadow-[0_0_20px_rgba(251,191,36,0.3)] transition-all flex items-center justify-center gap-2"
+               >
+                  💎 {t('premium.title')} Premium
+               </Link>
+               <button 
+                 onClick={() => setShowLimitModal(false)}
+                 className="w-full py-3.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-bold transition-all"
+               >
+                 {t('profile.cancel', 'Maybe Later')}
+               </button>
+             </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

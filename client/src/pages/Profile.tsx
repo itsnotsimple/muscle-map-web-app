@@ -27,7 +27,7 @@ const Profile = () => {
             const res = await ApiService.getUserStatus(user.token);
             if (res.ok) {
                 const data = await res.json();
-                if (data.isVerified) updateUser({ isVerified: true });
+                updateUser({ isVerified: data.isVerified, isPremium: data.isPremium });
             }
         } catch (e) {
             console.error("Failed to sync verification status");
@@ -79,7 +79,7 @@ const Profile = () => {
             containerClassName="!m-0 pointer-events-auto inline-block"
             textClassName="text-3xl md:text-5xl font-black text-slate-800 dark:text-white transition-colors tracking-tight"
           >
-            {t('profile.title', 'My Profile')}
+            {t('profile.myProfile', 'My Profile')}
           </ScrollFloat>
         </div>
         
@@ -91,12 +91,24 @@ const Profile = () => {
             
             {/* Header на профила */}
             <div className="bg-slate-800/80 dark:bg-slate-950/80 p-8 text-center relative transition-colors">
-              <div className="w-24 h-24 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-800 dark:text-slate-100 text-4xl font-bold border-4 border-blue-500 transition-colors">
+              <div className={`w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl font-bold transition-colors ${user?.isPremium ? 'bg-gradient-to-tr from-amber-400 to-yellow-600 text-white shadow-[0_0_20px_rgba(251,191,36,0.5)] border-4 border-yellow-300' : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border-4 border-blue-500'}`}>
                 {user?.email?.charAt(0).toUpperCase()}
               </div>
-              <h1 className="text-2xl font-bold text-white">{user?.email}</h1>
+              <h1 className="text-2xl font-bold text-white mb-2">{user?.email}</h1>
               
-              {/* ТУК БЕШЕ PRO MEMBER - МАХНАХМЕ ГО */}
+              {user?.isPremium ? (
+                  <div className="inline-block mt-1 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-400/20 to-yellow-500/10 border border-yellow-500/30 backdrop-blur-md">
+                      <span className="text-yellow-600 dark:text-yellow-400 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+                          💎 {t('profile.premiumMember', 'Premium Member')}
+                      </span>
+                  </div>
+              ) : (
+                  <div className="inline-block mt-1 px-4 py-1.5 rounded-full bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 backdrop-blur-md">
+                      <span className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+                          🌱 {t('profile.freeMember', 'Free Member')}
+                      </span>
+                  </div>
+              )}
             </div>
 
             {/* Детайли */}
@@ -195,8 +207,30 @@ const Profile = () => {
                     </div>
                 )}
 
-                {/* GAMIFICATION BADGES */}
                 <BadgesDisplay />
+
+                {/* PREMIUM CTA OVERLAY / BANNER */}
+                {!user?.isPremium && (
+                    <div className="mt-8 relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border border-slate-700/50 p-6 shadow-xl w-full flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 blur-3xl -translate-y-1/2 translate-x-1/3 rounded-full pointer-events-none"></div>
+                        <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/10 blur-3xl translate-y-1/3 -translate-x-1/2 rounded-full pointer-events-none"></div>
+                        <div className="text-left relative z-10 flex-1">
+                            <h3 className="text-lg font-bold text-white mb-1 flex items-center gap-2">
+                                {t('premium.title', 'Unlock MuscleMap')} <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-amber-500">{t('premium.pro', 'Pro')}</span> 💎
+                            </h3>
+                            <p className="text-sm text-slate-400 font-medium leading-relaxed">
+                                {t('profile.premiumPromoDesc', 'Get access to unlimited saved workouts, an AI custom workout generator, priority updates, and an exclusive Pro Athlete badge.')}
+                            </p>
+                        </div>
+                        <div className="relative z-10 shrink-0 w-full md:w-auto">
+                            <button 
+                                onClick={() => window.location.href = '/premium'}
+                                className="w-full md:w-auto px-6 py-3 bg-white text-slate-900 hover:bg-slate-100 rounded-xl font-bold text-sm shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-all">
+                                View Perks
+                            </button>
+                        </div>
+                    </div>
+                )}
 
               </div>
 

@@ -16,6 +16,8 @@ import VerifyEmail from './pages/VerifyEmail';
 import Terms from './pages/Terms';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import Premium from './pages/Premium';
+import WorkoutPlanner from './pages/WorkoutPlanner';
 import { GamificationEngine } from './components/GamificationEngine';
 import SoftAurora from './components/reactbits/SoftAurora';
 import Chatbot from './components/Chatbot';
@@ -46,6 +48,8 @@ const App = () => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/bmi" element={<BmiPage />} />
           <Route path="/diet" element={<DietPlan />} />
+          <Route path="/premium" element={<Premium />} />
+          <Route path="/workout-planner" element={<WorkoutPlanner />} />
           
           {/* Детайли за мускул */}
           <Route path="/muscle/:muscleId" element={<MuscleDetail />} />

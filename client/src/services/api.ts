@@ -2,8 +2,8 @@
  * Determines the API base URL depending on the current environment.
  * Evaluates the hostname to switch dynamically between local development and production.
  */
-const IS_LOCAL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-const API_URL = IS_LOCAL 
+export const IS_LOCAL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+export const API_URL = IS_LOCAL 
   ? 'http://localhost:5000/api' 
   : 'https://electronic-nadiya-musclemap-a30e9055.koyeb.app/api';
 
@@ -86,4 +86,5 @@ export const ApiService = {
 
   // --- AI Chat ---
   chat: (token: string, message: string, history: any[] = []) => apiFetch('/chat', { method: 'POST', token, body: { message, history } }),
+  getChatStatus: (token: string) => apiFetch('/chat/status', { token }),
 };

@@ -29,14 +29,7 @@ exports.handleChat = async (req, res) => {
             await user.save();
         }
 
-        // Context injection for premium users
-        let userProfileContext = "";
-        if (user.isPremium && user.physicalProfile && user.physicalProfile.age) {
-            const p = user.physicalProfile;
-            userProfileContext = `The user is ${p.gender}, ${p.age} years old, weighs ${p.weight}kg, is ${p.height}cm tall. Activity: ${p.activityLevel}. Tailor your advice perfectly to this profile naturally!`;
-        }
-
-        const response = await aiService.generateChatResponse(message, history || [], userProfileContext);
+        const response = await aiService.generateChatResponse(message, history || []);
         
         res.json({ 
             reply: response,

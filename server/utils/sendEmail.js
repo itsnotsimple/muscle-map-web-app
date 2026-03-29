@@ -1,6 +1,5 @@
 const nodemailer = require('nodemailer');
-const dotenv = require('dotenv');
-dotenv.config();
+
 
 const sendEmail = async (options) => {
     try {
@@ -35,6 +34,7 @@ const sendEmail = async (options) => {
             to: options.to,
             subject: options.subject,
             html: options.html,
+            ...(options.replyTo && { replyTo: options.replyTo }),
         };
 
         const info = await transporter.sendMail(mailOptions);

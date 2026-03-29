@@ -4,8 +4,8 @@ import App from './App.tsx'
 import './index.css' // Връщаме стиловете
 import './i18n' // i18n initialization
 import { AuthProvider } from './context/AuthContext.jsx' // Връщаме Auth
-import { ThemeProvider } from './components/theme-provider.tsx' // Theme provider
-import { UserPreferenceSync } from './components/UserPreferenceSync.tsx'
+import { ThemeProvider } from './components/layout/theme-provider.tsx' // Theme provider
+import { UserPreferenceSync } from './components/features/UserPreferenceSync.tsx'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 
 const rootElement = document.getElementById('root');

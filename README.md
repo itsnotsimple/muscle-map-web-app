@@ -1,7 +1,7 @@
 # 💪 MuscleMap AI — Interactive Fitness Intelligence Platform
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
-![Version](https://img.shields.io/badge/version-2.0.2-blue)
+![Version](https://img.shields.io/badge/version-2.2.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![React](https://img.shields.io/badge/Frontend-React%20%2B%20TypeScript-61DAFB?logo=react)
 ![Node](https://img.shields.io/badge/Backend-Node.js%20%2B%20Express-339933?logo=node.js)
@@ -51,6 +51,23 @@ A fully integrated Stripe checkout flow that unlocks **MuscleMap Pro**. Premium 
 - **Unlimited Bookmarks** (Free users restricted to 10).
 - Exclusive `Pro Athlete` user badge.
 
+### 📬 Contact Form
+A fully functional contact form connected to a backend API endpoint. Submissions are sent directly to the support email (`musclemap@yahoo.com`) with styled HTML formatting, and users receive an automatic confirmation email. Rate-limited to 3 submissions per 15 minutes.
+
+### 📄 Legal Compliance (GDPR / Stripe)
+Full legal infrastructure for production readiness:
+- **Terms and Conditions** — usage rules and liability
+- **Privacy Policy** — GDPR-compliant data handling disclosure
+- **Cookie Policy** — localStorage and third-party cookie transparency
+- **Refund Policy** — Stripe-compliant digital product refund terms
+- **FAQ** — interactive accordion with common questions
+- **About** — platform mission and feature overview
+
+All accessible via `|`-separated footer links.
+
+### 🍪 Cookie Consent Banner
+GDPR-compliant cookie consent banner that appears once on first visit. User choice is persisted in `localStorage` and the banner never reappears.
+
 ---
 
 ## 🛠️ Tech Stack
@@ -66,8 +83,8 @@ A fully integrated Stripe checkout flow that unlocks **MuscleMap Pro**. Premium 
 | React Router v6 | Client-side routing |
 | TanStack Query | Server state management |
 | Lucide React | Icon library |
+| ReactBits (custom) | Scroll, tilt, aurora, spotlight animations |
 | ReactMarkdown | Renders AI markdown responses |
-| react-markdown | Chatbot message formatting |
 | @vercel/analytics | Page view tracking |
 | @vercel/speed-insights | Performance monitoring |
 
@@ -81,6 +98,7 @@ A fully integrated Stripe checkout flow that unlocks **MuscleMap Pro**. Premium 
 | Nodemailer | Email verification & password reset |
 | bcrypt | Password hashing |
 | Stripe | Subscription & Checkout Sessions |
+| express-rate-limit | API rate limiting & anti-spam |
 | CORS | Cross-origin resource control |
 
 ### Infrastructure
@@ -134,7 +152,8 @@ EMAIL_PASS=your_gmail_app_password
 EMAIL_SERVICE=Gmail
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
-FRONTEND_URL=http://localhost:8080 (or your production url)
+FRONTEND_URL=http://localhost:8080
+CLIENT_URL=http://localhost:8080
 ```
 
 ### 3. Run the app
@@ -191,7 +210,12 @@ The `server/` directory is deployed to Koyeb. Add all variables from `.env` as *
 | GET | `/api/diets` | ❌ | Get all diet plans |
 | GET | `/api/chat/status` | ✅ | Get daily AI message limit status |
 | POST | `/api/chat` | ✅ | Send message to AI coach |
+| POST | `/api/workout/generate` | ✅ | Generate AI workout plan |
+| GET | `/api/workout/plans` | ✅ | Get saved workout plans |
+| DELETE | `/api/workout/plans/:id` | ✅ | Delete a workout plan |
+| POST | `/api/contact` | ❌ | Submit contact form (sends email) |
 | POST | `/api/stripe/create-checkout-session` | ✅ | Create Stripe checkout session |
+| POST | `/api/stripe/webhook` | ❌ | Stripe payment webhook |
 
 ---
 

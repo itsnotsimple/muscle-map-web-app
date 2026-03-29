@@ -1,30 +1,53 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-// Импортираме всички страници
-import Index from "./pages/Index";
-import Exercises from "./pages/Exercises";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Bookmarks from "./pages/Bookmarks";
-import MuscleDetail from "./pages/MuscleDetail";
-import NotFound from "./pages/NotFound";
-import Profile from "./pages/Profile"; 
-import BmiPage from "./pages/BmiPage";
-import DietPlan from './pages/DietPlan';
-import VerifyEmail from './pages/VerifyEmail';
-import Terms from './pages/Terms';
-import ForgotPassword from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
-import Premium from './pages/Premium';
-import WorkoutPlanner from './pages/WorkoutPlanner';
-import { GamificationEngine } from './components/GamificationEngine';
-import SoftAurora from './components/reactbits/SoftAurora';
-import Chatbot from './components/Chatbot';
-import { Analytics } from '@vercel/analytics/react';
-import { SpeedInsights } from '@vercel/speed-insights/react';
+// App pages
+import Index from "./pages/app/Index";
+import Exercises from "./pages/app/Exercises";
+import Bookmarks from "./pages/app/Bookmarks";
+import MuscleDetail from "./pages/app/MuscleDetail";
+import Profile from "./pages/app/Profile";
+import BmiPage from "./pages/app/BmiPage";
+import DietPlan from "./pages/app/DietPlan";
+import Premium from "./pages/app/Premium";
+import WorkoutPlanner from "./pages/app/WorkoutPlanner";
 
-const queryClient = new QueryClient();
+// Auth pages
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+import VerifyEmail from "./pages/auth/VerifyEmail";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
+
+// Static pages
+import Terms from "./pages/static/Terms";
+import PrivacyPolicy from "./pages/static/PrivacyPolicy";
+import CookiePolicy from "./pages/static/CookiePolicy";
+import RefundPolicy from "./pages/static/RefundPolicy";
+import FAQ from "./pages/static/FAQ";
+import Contact from "./pages/static/Contact";
+import About from "./pages/static/About";
+import NotFound from "./pages/static/NotFound";
+
+// UI Components
+import CookieBanner from "./components/ui/CookieBanner";
+
+// Global components
+import { GamificationEngine } from "./components/features/GamificationEngine";
+import Chatbot from "./components/features/Chatbot";
+import SoftAurora from "./components/reactbits/SoftAurora";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,       // 5 мин — не refetch-ва ако данните са "пресни"
+      retry: 1,                         // 1 retry на fail, не повтаряй безкрай
+      refetchOnWindowFocus: false,      // не презареждай при alt-tab
+    },
+  },
+});
 
 const App = () => {
   return (
@@ -40,6 +63,12 @@ const App = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/verify/:token" element={<VerifyEmail />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/cookies" element={<CookiePolicy />} />
+          <Route path="/refund" element={<RefundPolicy />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/about" element={<About />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           
@@ -59,6 +88,7 @@ const App = () => {
         </Routes>
         <GamificationEngine />
         <Chatbot />
+        <CookieBanner />
         <SoftAurora
           speed={0.5}
           scale={1.5}

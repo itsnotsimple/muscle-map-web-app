@@ -8,7 +8,8 @@ const authenticateToken = (req, res, next) => {
   if (!token) return res.status(401).json({ message: "Access Denied" });
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ message: "Invalid Token" });
+    // 401 за и двата случая — frontend може да ги улови и auto-logout
+    if (err) return res.status(401).json({ message: "Session expired. Please log in again." });
     req.user = user;
     next();
   });

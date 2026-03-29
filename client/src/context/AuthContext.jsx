@@ -1,4 +1,4 @@
-import { createContext, useState, useContext } from "react";
+import { createContext, useState, useContext, useEffect } from "react";
 
 const AuthContext = createContext();
 
@@ -9,7 +9,6 @@ export const AuthProvider = ({ children }) => {
       let savedUser = sessionStorage.getItem("user") || localStorage.getItem("user");
       
       if (token && savedUser) {
-        // ВЗИМАМЕ ПОТРЕБИТЕЛЯ И МУ "ЗАЛЕПЯМЕ" ТОКЕНА, ЗА ДА ГО ИМА
         const parsedUser = JSON.parse(savedUser);
         return { ...parsedUser, token }; 
       }
@@ -21,25 +20,6 @@ export const AuthProvider = ({ children }) => {
 
   const [loading, setLoading] = useState(false);
 
-  // --- ПОПРАВЕНАТА LOGIN ФУНКЦИЯ ---
-  const login = (token, userData, rememberMe = false) => {
-    // Clear both stores to prevent conflicting orphaned states
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("user");
-
-    const storage = rememberMe ? localStorage : sessionStorage;
-    storage.setItem("token", token);
-    
-    // ВАЖНО: Сливане на данните!
-    // Слагаме токена ВЪТРЕ в user обекта, преди да го запазим
-    const userWithToken = { ...userData, token };
-    
-    storage.setItem("user", JSON.stringify(userWithToken));
-    setUser(userWithToken);
-  };
-
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -49,6 +29,32 @@ export const AuthProvider = ({ children }) => {
     sessionStorage.removeItem("userEmail");
     setUser(null);
     window.location.href = "/";
+  };
+
+  // Auto-logout при изтекъл/невалиден JWT (401 от сървъра)
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      // Само ако потребителят е влязъл — избягваме loop на публични страници
+      if (sessionStorage.getItem("token") || localStorage.getItem("token")) {
+        logout();
+      }
+    };
+    window.addEventListener('musclemap:unauthorized', handleUnauthorized);
+    return () => window.removeEventListener('musclemap:unauthorized', handleUnauthorized);
+  }, []);
+
+  const login = (token, userData, rememberMe = false) => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
+
+    const storage = rememberMe ? localStorage : sessionStorage;
+    storage.setItem("token", token);
+    
+    const userWithToken = { ...userData, token };
+    storage.setItem("user", JSON.stringify(userWithToken));
+    setUser(userWithToken);
   };
 
   const updateUser = (data) => {

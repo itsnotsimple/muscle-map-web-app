@@ -37,7 +37,6 @@ const apiFetch = (endpoint: string, options: FetchOptions = {}): Promise<Respons
     'Content-Type': 'application/json'
   };
 
-  // Append Bearer token if provided for authenticated requests
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
@@ -47,12 +46,17 @@ const apiFetch = (endpoint: string, options: FetchOptions = {}): Promise<Respons
     headers,
   };
 
-  // Automatically stringify JSON body if provided as an object
   if (body) {
     config.body = typeof body === 'string' ? body : JSON.stringify(body);
   }
 
-  return fetch(`${API_URL}${endpoint}`, config);
+  return fetch(`${API_URL}${endpoint}`, config).then((response) => {
+    // Автоматично дипсатчваме event при изтекъл/невалиден токен
+    if (response.status === 401) {
+      window.dispatchEvent(new CustomEvent('musclemap:unauthorized'));
+    }
+    return response;
+  });
 };
 
 /**
@@ -87,4 +91,17 @@ export const ApiService = {
   // --- AI Chat ---
   chat: (token: string, message: string, history: any[] = []) => apiFetch('/chat', { method: 'POST', token, body: { message, history } }),
   getChatStatus: (token: string) => apiFetch('/chat/status', { token }),
+
+  // --- AI Workout Planner ---
+  generateWorkoutPlan: (token: string, data: { goal: string; days: string; level: string; language: string }) => 
+    apiFetch('/workout/generate', { method: 'POST', token, body: data }),
+  saveWorkoutPlan: (token: string, data: any) => 
+    apiFetch('/workout/save', { method: 'POST', token, body: data }),
+  getSavedWorkouts: (token: string) => 
+    apiFetch('/workout/plans', { token }),
+  deleteWorkoutPlan: (token: string, id: string) => 
+    apiFetch(`/workout/${id}`, { method: 'DELETE', token }),
+
+  // --- Stripe ---
+  createCheckoutSession: (token: string) => apiFetch('/stripe/create-checkout-session', { method: 'POST', token }),
 };

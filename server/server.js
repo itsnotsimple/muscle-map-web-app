@@ -3,8 +3,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dns = require('dns');
+const rateLimit = require('express-rate-limit');
 
-// Форсираме Node.js да използва Google DNS (8.8.8.8), за да заобиколи филтъра на доставчика ти за SRV записи!
+// Форсираме Node.js да използва Google DNS (8.8.8.8)
 try {
     dns.setServers(['8.8.8.8', '8.8.4.4']);
 } catch (e) {
@@ -12,36 +13,79 @@ try {
 }
 
 // --- ИМПОРТИРАМЕ ОТДЕЛНИТЕ ФАЙЛОВЕ ---
-const authRoutes = require('./routes/auth');      // Тук е User логиката + триенето
-const muscleRoutes = require('./routes/muscles'); // Тук е логиката за тренировките
-const dietRoutes = require('./routes/diets');     // Логика за диетите
-const chatRoutes = require('./routes/chat');      // Groq Chatbot логика
-const { checkoutRoute, webhookRoute } = require('./routes/stripe'); // Stripe payments
+const authRoutes = require('./routes/auth');
+const muscleRoutes = require('./routes/muscles');
+const dietRoutes = require('./routes/diets');
+const chatRoutes = require('./routes/chat');
+const workoutRoutes = require('./routes/workout');
+const contactRoutes = require('./routes/contact');
+const { checkoutRoute, webhookRoute } = require('./routes/stripe');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Настройки
+// --- RATE LIMITING ---
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 минути
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many requests. Please try again later." }
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10, // 10 опита за логин/регистрация на 15 мин
+  message: { message: "Too many authentication attempts. Please try again later." }
+});
+
+const aiLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 минута
+  max: 5, // 5 AI заявки на минута
+  message: { message: "AI rate limit reached. Please wait a moment." }
+});
+
+// --- CORS ---
 app.use(cors({
   origin: ["http://localhost:8080", "http://127.0.0.1:8080", "https://muscle-map-main.vercel.app"],
   credentials: true
 }));
-// Всичко отива под /api prefix
 
-// Webhook must use express.raw BEFORE express.json() parses it globally
+// Webhook must use express.raw BEFORE express.json()
 app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }), webhookRoute);
 
 app.use(express.json());
+app.use('/api', generalLimiter);
 
-app.use('/api', authRoutes);    // http://localhost:5000/api/register ...
-app.use('/api', muscleRoutes);  // http://localhost:5000/api/muscles/chest ...
-app.use('/api', dietRoutes);    // http://localhost:5000/api/diets
-app.use('/api', chatRoutes);    // http://localhost:5000/api/chat
-app.use('/api/stripe', checkoutRoute); // http://localhost:5000/api/stripe/create-checkout-session
+// Auth — строг лимит за brute-force защита
+app.use('/api/register', authLimiter);
+app.use('/api/login', authLimiter);
+app.use('/api/forgot-password', authLimiter);
+
+// AI — отделен лимит
+app.use('/api/chat', aiLimiter);
+app.use('/api/workout', aiLimiter);
+
+// Contact — ограничение срещу спам
+const contactLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 3,
+  message: { message: "Too many messages sent. Please try again later." }
+});
+app.use('/api/contact', contactLimiter);
+
+// --- ROUTES ---
+app.use('/api', authRoutes);
+app.use('/api', muscleRoutes);
+app.use('/api', dietRoutes);
+app.use('/api', chatRoutes);
+app.use('/api', workoutRoutes);
+app.use('/api', contactRoutes);
+app.use('/api/stripe', checkoutRoute);
 
 // Връзка с базата
 mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/musclewiki', {
-  family: 4 // Форсира IPv4 за Node.js 17+, за да не гърми на SRV records
+  family: 4
 })
   .then(() => console.log('✅ MongoDB Connected'))
   .catch(err => console.error(`❌ MongoDB Error ${process.env.MONGO_URI}:`, err));

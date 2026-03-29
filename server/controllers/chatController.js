@@ -10,6 +10,7 @@ exports.handleChat = async (req, res) => {
         }
 
         const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ error: "User not found." });
 
         // 24-hour rolling window limit logic for free users
         if (!user.isPremium) {
@@ -24,12 +25,15 @@ exports.handleChat = async (req, res) => {
             if (user.aiMessageCount >= 5) {
                 return res.status(403).json({ error: "LIMIT_REACHED" });
             }
+        }
 
+        // Извикваме AI ПЪРВО — броячът се инкрементира само при успех
+        const response = await aiService.generateChatResponse(message, history || []);
+
+        if (!user.isPremium) {
             user.aiMessageCount += 1;
             await user.save();
         }
-
-        const response = await aiService.generateChatResponse(message, history || []);
         
         res.json({ 
             reply: response,

@@ -25,17 +25,26 @@ exports.register = async (req, res) => {
     });
     await newUser.save();
 
-    const verificationUrl = `https://muscle-map-main.vercel.app/verify/${verificationToken}`;
+    const verificationUrl = `${process.env.CLIENT_URL || 'http://localhost:8080'}/verify/${verificationToken}`;
     const emailHtml = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden;">
-        <div style="background-color: #1e293b; padding: 20px; text-align: center;">
-          <h1 style="color: #ffffff; margin: 0; font-size: 24px;">MUSCLE MAP</h1>
-        </div>
-        <div style="padding: 30px; background-color: #ffffff;">
-          <h2 style="color: #0f172a; margin-top: 0;">Welcome to Muscle Map!</h2>
-          <p style="color: #475569; font-size: 16px; line-height: 1.5;">To get started and unlock all features, please verify your email address by clicking the button below:</p>
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${verificationUrl}" style="background-color: #2563eb; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Verify Email</a>
+      <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 560px; margin: 0 auto; background-color: #f8fafc; padding: 40px 20px;">
+        <div style="background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
+          <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 32px 24px; text-align: center;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 900; letter-spacing: 2px;">MUSCLE MAP</h1>
+          </div>
+          <div style="padding: 40px 32px; text-align: center;">
+            <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin: 0 auto 20px;">
+              <tr>
+                <td align="center" valign="middle" style="font-size: 48px; line-height: 1;">📩</td>
+              </tr>
+            </table>
+            <h2 style="color: #0f172a; margin: 0 0 12px; font-size: 22px; font-weight: 800;">Welcome to Muscle Map!</h2>
+            <p style="color: #64748b; font-size: 15px; line-height: 1.6; margin: 0 0 32px;">To get started and unlock all features, please verify your email address by clicking the button below:</p>
+            <a href="${verificationUrl}" style="display: inline-block; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #ffffff; padding: 14px 40px; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 15px; letter-spacing: 0.5px;">Verify Email</a>
+            <p style="color: #94a3b8; font-size: 12px; margin: 28px 0 0; line-height: 1.5;">If you didn't create an account, you can safely ignore this email.</p>
+          </div>
+          <div style="background: #f1f5f9; padding: 16px 32px; text-align: center; border-top: 1px solid #e2e8f0;">
+            <p style="color: #94a3b8; font-size: 11px; margin: 0;">© ${new Date().getFullYear()} Muscle Map. All rights reserved.</p>
           </div>
         </div>
       </div>
@@ -81,7 +90,7 @@ exports.login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
-    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '7d' });
     res.json({
       token,
       user: {
@@ -121,15 +130,14 @@ exports.googleLogin = async (req, res) => {
     let user = await User.findOne({ email });
 
     if (!user) {
-      const salt = await bcrypt.genSalt(10);
       const randomPassword = crypto.randomBytes(16).toString('hex');
-      const hashedPassword = await bcrypt.hash(randomPassword, salt);
+      const hashedPassword = await bcrypt.hash(randomPassword, 10);
 
       user = new User({ email, password: hashedPassword, isVerified: true, authProvider: 'google' });
       await user.save();
     }
 
-    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '7d' });
     res.json({
       token,
       user: {
@@ -257,10 +265,32 @@ exports.forgotPassword = async (req, res) => {
     user.resetPasswordExpires = Date.now() + 300000;
     await user.save();
 
-    const resetUrl = `https://muscle-map-main.vercel.app/reset-password/${resetToken}`;
-    const emailHtml = `<a href="${resetUrl}">Reset Password</a>`;
+    const resetUrl = `${process.env.CLIENT_URL || 'http://localhost:8080'}/reset-password/${resetToken}`;
+    const emailHtml = `
+      <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 560px; margin: 0 auto; background-color: #f8fafc; padding: 40px 20px;">
+        <div style="background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
+          <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 32px 24px; text-align: center;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 900; letter-spacing: 2px;">MUSCLE MAP</h1>
+          </div>
+          <div style="padding: 40px 32px; text-align: center;">
+            <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin: 0 auto 20px;">
+              <tr>
+                <td align="center" valign="middle" style="font-size: 48px; line-height: 1;">🔒</td>
+              </tr>
+            </table>
+            <h2 style="color: #0f172a; margin: 0 0 12px; font-size: 22px; font-weight: 800;">Reset Your Password</h2>
+            <p style="color: #64748b; font-size: 15px; line-height: 1.6; margin: 0 0 32px;">We received a request to reset your password. Click the button below to choose a new password:</p>
+            <a href="${resetUrl}" style="display: inline-block; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #ffffff; padding: 14px 40px; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 15px; letter-spacing: 0.5px;">Reset Password</a>
+            <p style="color: #94a3b8; font-size: 12px; margin: 28px 0 0; line-height: 1.5;">This link expires in 5 minutes. If you didn't request a password reset, you can safely ignore this email.</p>
+          </div>
+          <div style="background: #f1f5f9; padding: 16px 32px; text-align: center; border-top: 1px solid #e2e8f0;">
+            <p style="color: #94a3b8; font-size: 11px; margin: 0;">© ${new Date().getFullYear()} Muscle Map. All rights reserved.</p>
+          </div>
+        </div>
+      </div>
+    `;
 
-    sendEmail({ to: user.email, subject: 'Password Reset', html: emailHtml }).catch(console.error);
+    sendEmail({ to: user.email, subject: 'Muscle Map - Password Reset', html: emailHtml }).catch(console.error);
     res.json({ message: "Reset link sent" });
   } catch (err) { res.status(500).json({ message: err.message }); }
 };

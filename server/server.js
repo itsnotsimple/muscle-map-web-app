@@ -45,6 +45,12 @@ const aiLimiter = rateLimit({
   message: { message: "AI rate limit reached. Please wait a moment." }
 });
 
+const contactLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 3,
+  message: { message: "Too many messages sent. Please try again later." }
+});
+
 // --- CORS ---
 app.use(cors({
   origin: ["http://localhost:8080", "http://127.0.0.1:8080", "https://muscle-map-main.vercel.app"],
@@ -66,21 +72,13 @@ app.use('/api/forgot-password', authLimiter);
 app.use('/api/chat', aiLimiter);
 app.use('/api/workout', aiLimiter);
 
-// Contact — ограничение срещу спам
-const contactLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 3,
-  message: { message: "Too many messages sent. Please try again later." }
-});
-app.use('/api/contact', contactLimiter);
-
 // --- ROUTES ---
 app.use('/api', authRoutes);
 app.use('/api', muscleRoutes);
 app.use('/api', dietRoutes);
 app.use('/api', chatRoutes);
 app.use('/api', workoutRoutes);
-app.use('/api', contactRoutes);
+app.use('/api/contact', contactLimiter, contactRoutes);
 app.use('/api/stripe', checkoutRoute);
 
 // Връзка с базата

@@ -72,7 +72,7 @@ const contactLimiter = rateLimit({
   max: 3,
   message: { message: "Too many messages sent. Please try again later." }
 });
-app.use('/api/contact', contactLimiter);
+app.use('/api/contact', contactLimiter, contactRoutes);
 
 // --- ROUTES ---
 app.use('/api', authRoutes);
@@ -80,7 +80,6 @@ app.use('/api', muscleRoutes);
 app.use('/api', dietRoutes);
 app.use('/api', chatRoutes);
 app.use('/api', workoutRoutes);
-app.use('/api', contactRoutes);
 app.use('/api/stripe', checkoutRoute);
 
 // Връзка с базата

@@ -2,8 +2,9 @@ const express = require('express');
 const router = express.Router();
 const sendEmail = require('../utils/sendEmail');
 
-// POST /api/contact — приема съобщение от Contact формата и го праща на admin email-а
-router.post('/contact', async (req, res) => {
+// POST / — приема съобщение от Contact формата (монтиран на /api/contact в server.js)
+router.post('/', async (req, res) => {
+  console.log('📬 Contact form submission received:', req.body.email);
   try {
     const { name, email, subject, message } = req.body;
 

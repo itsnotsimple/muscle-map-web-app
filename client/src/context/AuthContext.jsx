@@ -7,10 +7,10 @@ export const AuthProvider = ({ children }) => {
     try {
       let token = sessionStorage.getItem("token") || localStorage.getItem("token");
       let savedUser = sessionStorage.getItem("user") || localStorage.getItem("user");
-      
+
       if (token && savedUser) {
         const parsedUser = JSON.parse(savedUser);
-        return { ...parsedUser, token }; 
+        return { ...parsedUser, token };
       }
     } catch (e) {
       console.error(e);
@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }) => {
 
     const storage = rememberMe ? localStorage : sessionStorage;
     storage.setItem("token", token);
-    
+
     const userWithToken = { ...userData, token };
     storage.setItem("user", JSON.stringify(userWithToken));
     setUser(userWithToken);
@@ -59,15 +59,15 @@ export const AuthProvider = ({ children }) => {
 
   const updateUser = (data) => {
     setUser((prev) => {
-        if (!prev) return null;
-        const updated = { ...prev, ...data };
-        if (sessionStorage.getItem("user")) {
-            sessionStorage.setItem("user", JSON.stringify(updated));
-        }
-        if (localStorage.getItem("user")) {
-            localStorage.setItem("user", JSON.stringify(updated)); 
-        }
-        return updated;
+      if (!prev) return null;
+      const updated = { ...prev, ...data };
+      if (sessionStorage.getItem("user")) {
+        sessionStorage.setItem("user", JSON.stringify(updated));
+      }
+      if (localStorage.getItem("user")) {
+        localStorage.setItem("user", JSON.stringify(updated));
+      }
+      return updated;
     });
   };
 

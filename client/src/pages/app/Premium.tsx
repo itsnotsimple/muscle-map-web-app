@@ -1,6 +1,7 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 import Header from "../../components/layout/Header";
 import Footer from "../../components/layout/Footer";
 import { Crown, Zap, Bookmark, Bot } from "lucide-react";
@@ -10,10 +11,32 @@ import ScrollFloat from "../../components/reactbits/ScrollFloat";
 import { ApiService } from "../../services/api";
 
 const Premium = () => {
-    const { user } = useAuth();
+    const { user, updateUser } = useAuth();
     const { t } = useTranslation();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
+
+    useEffect(() => {
+        const success = searchParams.get('success');
+        if (success === 'true' && user && !user.isPremium) {
+            const verifyStatus = async () => {
+                try {
+                    const res = await ApiService.getUserStatus(user.token);
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.isPremium) {
+                            updateUser({ isPremium: true });
+                            setSearchParams({});
+                        }
+                    }
+                } catch (err) {
+                    console.error("Failed to verify premium status", err);
+                }
+            };
+            verifyStatus();
+        }
+    }, [searchParams, user, updateUser, setSearchParams]);
 
     const handleUpgrade = async () => {
         if (!user) {

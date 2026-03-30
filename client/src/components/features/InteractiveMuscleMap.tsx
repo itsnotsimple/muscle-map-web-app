@@ -111,7 +111,7 @@ const InteractiveMuscleMap = ({ onMuscleSelect }: InteractiveMuscleMapProps) => 
         
         <img 
           ref={imgRef}
-          src="/images/musclemap3.png" 
+          src="/images/musclemap2.png" 
           useMap="#musclemap" 
           className="block w-full h-auto dark:invert dark:opacity-90"
           style={{ opacity: isLoaded ? 1 : 0, transition: 'opacity 0.5s' }}
